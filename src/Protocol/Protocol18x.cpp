@@ -45,6 +45,7 @@ Implements the 1.8.x protocol classes:
 #include "../BlockEntities/MobHeadEntity.h"
 #include "../BlockEntities/MobSpawnerEntity.h"
 #include "../BlockEntities/FlowerPotEntity.h"
+#include "../BlockEntities/BannerEntity.h"
 #include "Bindings/PluginManager.h"
 
 
@@ -1499,18 +1500,19 @@ void cProtocol180::SendUpdateBlockEntity(cBlockEntity & a_BlockEntity)
 	Byte Action = 0;
 	switch (a_BlockEntity.GetBlockType())
 	{
-		case E_BLOCK_MOB_SPAWNER:   Action = 1; break;  // Update mob spawner spinny mob thing
-		case E_BLOCK_COMMAND_BLOCK: Action = 2; break;  // Update command block text
-		case E_BLOCK_BEACON:        Action = 3; break;  // Update beacon entity
-		case E_BLOCK_HEAD:          Action = 4; break;  // Update Mobhead entity
-		case E_BLOCK_FLOWER_POT:    Action = 5; break;  // Update flower pot
+		case E_BLOCK_MOB_SPAWNER:     Action = 1; break;  // Update mob spawner spinny mob thing
+		case E_BLOCK_COMMAND_BLOCK:   Action = 2; break;  // Update command block text
+		case E_BLOCK_BEACON:          Action = 3; break;  // Update beacon entity
+		case E_BLOCK_HEAD:            Action = 4; break;  // Update Mobhead entity
+		case E_BLOCK_FLOWER_POT:      Action = 5; break;  // Update flower pot
+		case E_BLOCK_STANDING_BANNER:
+		case E_BLOCK_WALL_BANNER:     Action = 6; break; // Update banner base colour and patterns
 		default: ASSERT(!"Unhandled or unimplemented BlockEntity update request!"); break;
 	}
 	Pkt.WriteBEUInt8(Action);
 
 	WriteBlockEntity(Pkt, a_BlockEntity);
 }
-
 
 
 
@@ -3162,6 +3164,31 @@ void cProtocol180::WriteBlockEntity(cPacketizer & a_Pkt, const cBlockEntity & a_
 			Writer.AddString("EntityId", cMonster::MobTypeToVanillaName(MobSpawnerEntity.GetEntity()));
 			Writer.AddShort("Delay", MobSpawnerEntity.GetSpawnDelay());
 			Writer.AddString("id", "MobSpawner");
+			break;
+		}
+
+		case E_BLOCK_STANDING_BANNER:
+		case E_BLOCK_WALL_BANNER:
+		{
+			auto & BannerEntity = reinterpret_cast<const cBannerEntity &>(a_BlockEntity);
+
+			Writer.AddInt("x", BannerEntity.GetPosX());
+			Writer.AddInt("y", BannerEntity.GetPosY());
+			Writer.AddInt("z", BannerEntity.GetPosZ());
+			Writer.AddInt("Base", BannerEntity.GetBaseColor());
+
+			Writer.BeginList("Patterns",TAG_Compound);
+
+			for (auto Pattern : BannerEntity.GetPatterns()) {
+				Writer.BeginCompound("");
+				Writer.AddInt("Color", Pattern.Color);
+				Writer.AddString("Pattern", Pattern.Pattern);
+				Writer.EndCompound();
+			}
+
+			Writer.EndList();
+
+			Writer.AddString("id", "Banner");
 			break;
 		}
 

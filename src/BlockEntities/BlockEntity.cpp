@@ -20,7 +20,7 @@
 #include "JukeboxEntity.h"
 #include "NoteEntity.h"
 #include "SignEntity.h"
-
+#include "BannerEntity.h"
 
 
 
@@ -47,6 +47,8 @@ cBlockEntity * cBlockEntity::CreateByBlockType(BLOCKTYPE a_BlockType, NIBBLETYPE
 		case E_BLOCK_TRAPPED_CHEST: return new cChestEntity       (a_BlockX, a_BlockY, a_BlockZ, a_World, a_BlockType);
 		case E_BLOCK_WALLSIGN:      return new cSignEntity        (a_BlockType, a_BlockX, a_BlockY, a_BlockZ, a_World);
 		case E_BLOCK_NOTE_BLOCK:    return new cNoteEntity        (a_BlockX, a_BlockY, a_BlockZ, a_World);
+		case E_BLOCK_STANDING_BANNER:
+		case E_BLOCK_WALL_BANNER:	return new cBannerEntity      (a_BlockType, a_BlockX, a_BlockY, a_BlockZ, a_World, a_BlockMeta);
 	}
 	LOGD("%s: Requesting creation of an unknown block entity - block type %d (%s)",
 		__FUNCTION__, a_BlockType, ItemTypeToString(a_BlockType).c_str()

@@ -1333,6 +1333,8 @@ void cChunk::CreateBlockEntities(void)
 					case E_BLOCK_FLOWER_POT:
 					case E_BLOCK_MOB_SPAWNER:
 					case E_BLOCK_BREWING_STAND:
+					case E_BLOCK_STANDING_BANNER:
+					case E_BLOCK_WALL_BANNER:
 					{
 						if (!HasBlockEntityAt(x + m_PosX * Width, y, z + m_PosZ * Width))
 						{
@@ -1466,6 +1468,8 @@ void cChunk::SetBlock(int a_RelX, int a_RelY, int a_RelZ, BLOCKTYPE a_BlockType,
 		case E_BLOCK_FLOWER_POT:
 		case E_BLOCK_MOB_SPAWNER:
 		case E_BLOCK_BREWING_STAND:
+		case E_BLOCK_STANDING_BANNER:
+		case E_BLOCK_WALL_BANNER:
 		{
 			AddBlockEntity(cBlockEntity::CreateByBlockType(a_BlockType, a_BlockMeta, WorldPos.x, WorldPos.y, WorldPos.z, m_World));
 			break;
