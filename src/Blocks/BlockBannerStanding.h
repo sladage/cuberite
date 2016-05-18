@@ -22,7 +22,7 @@ public:
 
 	virtual void ConvertToPickups(cItems & a_Pickups, NIBBLETYPE a_BlockMeta) override
 	{
-		a_Pickups.push_back(cItem(E_ITEM_SIGN, 1, 0));
+		a_Pickups.push_back(cItem(E_ITEM_BANNER, 1, 0));
 	}
 
 	virtual bool CanBeAt(cChunkInterface & a_ChunkInterface, int a_RelX, int a_RelY, int a_RelZ, const cChunk & a_Chunk) override
@@ -33,7 +33,7 @@ public:
 		}
 		BLOCKTYPE Type = a_Chunk.GetBlock(a_RelX, a_RelY - 1, a_RelZ);
 
-		return ((Type == E_BLOCK_SIGN_POST) || (Type == E_BLOCK_WALLSIGN) || cBlockInfo::IsSolid(Type));
+		return ((Type == E_BLOCK_STANDING_BANNER) || (Type == E_BLOCK_WALL_BANNER) || cBlockInfo::IsSolid(Type));
 	}
 
 	static NIBBLETYPE RotationToMetaData(double a_Rotation)
