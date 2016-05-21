@@ -37,6 +37,8 @@ Implements the 1.8.x protocol classes:
 #include "../Entities/ArrowEntity.h"
 #include "../Entities/FireworkEntity.h"
 
+#include "../Items/ItemHandler.h"
+
 #include "../Mobs/IncludeAllMonsters.h"
 #include "../UI/Window.h"
 
@@ -2878,6 +2880,13 @@ void cProtocol180::ParseItemMetadata(cItem & a_Item, const AString & a_Metadata)
 			default: LOGD("Unimplemented NBT data when parsing!"); break;
 		}
 	}
+
+	cItemMeta* itemmeta = a_Item.GetHandler()->MakeItemMeta();
+	if (itemmeta != nullptr) {
+		itemmeta->FromNBT(NBT);
+		a_Item.SetItemMeta(itemmeta);
+	}
+
 }
 
 

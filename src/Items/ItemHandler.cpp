@@ -864,3 +864,11 @@ cItemHandler::FoodInfo cItemHandler::GetFoodInfo()
 {
 	return FoodInfo(0, 0);
 }
+
+
+
+
+cItemMeta* cItemHandler::MakeItemMeta()
+{
+	return nullptr;
+}

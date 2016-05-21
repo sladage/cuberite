@@ -31,6 +31,7 @@
 #include "../BlockEntities/MobHeadEntity.h"
 #include "../BlockEntities/MobSpawnerEntity.h"
 #include "../BlockEntities/FlowerPotEntity.h"
+#include "../BlockEntities/BannerEntity.h"
 
 #include "../Mobs/Monster.h"
 #include "../Mobs/IncludeAllMonsters.h"
@@ -689,23 +690,25 @@ cBlockEntity * cWSSAnvil::LoadBlockEntityFromNBT(const cParsedNBT & a_NBT, int a
 	switch (a_BlockType)
 	{
 		// Specific entity loaders:
-		case E_BLOCK_BEACON:        return LoadBeaconFromNBT      (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ);
-		case E_BLOCK_BREWING_STAND: return LoadBrewingstandFromNBT(a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ, E_BLOCK_BREWING_STAND, a_BlockMeta);
-		case E_BLOCK_CHEST:         return LoadChestFromNBT       (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ, E_BLOCK_CHEST);
-		case E_BLOCK_COMMAND_BLOCK: return LoadCommandBlockFromNBT(a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ);
-		case E_BLOCK_DISPENSER:     return LoadDispenserFromNBT   (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ);
-		case E_BLOCK_DROPPER:       return LoadDropperFromNBT     (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ);
-		case E_BLOCK_FLOWER_POT:    return LoadFlowerPotFromNBT   (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ);
-		case E_BLOCK_FURNACE:       return LoadFurnaceFromNBT     (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ, E_BLOCK_FURNACE, a_BlockMeta);
-		case E_BLOCK_HEAD:          return LoadMobHeadFromNBT     (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ);
-		case E_BLOCK_HOPPER:        return LoadHopperFromNBT      (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ);
-		case E_BLOCK_JUKEBOX:       return LoadJukeboxFromNBT     (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ);
-		case E_BLOCK_LIT_FURNACE:   return LoadFurnaceFromNBT     (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ, E_BLOCK_LIT_FURNACE, a_BlockMeta);
-		case E_BLOCK_MOB_SPAWNER:   return LoadMobSpawnerFromNBT  (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ);
-		case E_BLOCK_NOTE_BLOCK:    return LoadNoteBlockFromNBT   (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ);
-		case E_BLOCK_SIGN_POST:     return LoadSignFromNBT        (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ, E_BLOCK_SIGN_POST);
-		case E_BLOCK_TRAPPED_CHEST: return LoadChestFromNBT       (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ, E_BLOCK_TRAPPED_CHEST);
-		case E_BLOCK_WALLSIGN:      return LoadSignFromNBT        (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ, E_BLOCK_WALLSIGN);
+		case E_BLOCK_BEACON:          return LoadBeaconFromNBT      (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ);
+		case E_BLOCK_BREWING_STAND:   return LoadBrewingstandFromNBT(a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ, E_BLOCK_BREWING_STAND, a_BlockMeta);
+		case E_BLOCK_CHEST:           return LoadChestFromNBT       (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ, E_BLOCK_CHEST);
+		case E_BLOCK_COMMAND_BLOCK:   return LoadCommandBlockFromNBT(a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ);
+		case E_BLOCK_DISPENSER:       return LoadDispenserFromNBT   (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ);
+		case E_BLOCK_DROPPER:         return LoadDropperFromNBT     (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ);
+		case E_BLOCK_FLOWER_POT:      return LoadFlowerPotFromNBT   (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ);
+		case E_BLOCK_FURNACE:         return LoadFurnaceFromNBT     (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ, E_BLOCK_FURNACE, a_BlockMeta);
+		case E_BLOCK_HEAD:            return LoadMobHeadFromNBT     (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ);
+		case E_BLOCK_HOPPER:          return LoadHopperFromNBT      (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ);
+		case E_BLOCK_JUKEBOX:         return LoadJukeboxFromNBT     (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ);
+		case E_BLOCK_LIT_FURNACE:     return LoadFurnaceFromNBT     (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ, E_BLOCK_LIT_FURNACE, a_BlockMeta);
+		case E_BLOCK_MOB_SPAWNER:     return LoadMobSpawnerFromNBT  (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ);
+		case E_BLOCK_NOTE_BLOCK:      return LoadNoteBlockFromNBT   (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ);
+		case E_BLOCK_SIGN_POST:       return LoadSignFromNBT        (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ, E_BLOCK_SIGN_POST);
+		case E_BLOCK_STANDING_BANNER: return LoadBannerFromNBT      (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ, E_BLOCK_STANDING_BANNER, a_BlockMeta);
+		case E_BLOCK_TRAPPED_CHEST:   return LoadChestFromNBT       (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ, E_BLOCK_TRAPPED_CHEST);
+		case E_BLOCK_WALLSIGN:        return LoadSignFromNBT        (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ, E_BLOCK_WALLSIGN);
+		case E_BLOCK_WALL_BANNER:     return LoadBannerFromNBT      (a_NBT, a_Tag, a_BlockX, a_BlockY, a_BlockZ, E_BLOCK_WALL_BANNER, a_BlockMeta);
 
 		// Blocktypes that have block entities but don't load their contents from disk:
 		case E_BLOCK_ENDER_CHEST:   return nullptr;
@@ -1399,6 +1402,39 @@ cBlockEntity * cWSSAnvil::LoadSignFromNBT(const cParsedNBT & a_NBT, int a_TagIdx
 	}
 
 	return Sign.release();
+}
+
+
+
+
+cBlockEntity * cWSSAnvil::LoadBannerFromNBT(const cParsedNBT & a_NBT, int a_TagIdx, int a_BlockX, int a_BlockY, int a_BlockZ, BLOCKTYPE a_BlockType, NIBBLETYPE a_BlockMeta)
+{
+	// Check if the data has a proper type:
+	if (!CheckBlockEntityType(a_NBT, a_TagIdx, "Banner"))
+	{
+		return nullptr;
+	}
+
+	std::unique_ptr<cBannerEntity> Banner = cpp14::make_unique<cBannerEntity>(a_BlockType, a_BlockX, a_BlockY, a_BlockZ, m_World, a_BlockMeta);
+
+	int base = a_NBT.FindChildByName(a_TagIdx, "Base");
+	if (base >= 0) {
+		Banner->SetBaseColor(a_NBT.GetInt(base));
+	}
+
+	int patterns = a_NBT.FindChildByName(a_TagIdx, "Patterns");
+	if (patterns >= 0) {
+		int pattern = a_NBT.GetFirstChild(patterns);
+		while (pattern >= 0) {
+			int ptColor = a_NBT.FindChildByName(pattern, "Color");
+			int ptPattern = a_NBT.FindChildByName(pattern, "Pattern");
+			if (ptColor >= 0 && ptPattern >= 0) {
+				Banner->AddPattern(a_NBT.GetInt(ptColor), a_NBT.GetString(ptPattern));
+			}
+		}
+	}
+
+	return Banner.release();
 }
 
 

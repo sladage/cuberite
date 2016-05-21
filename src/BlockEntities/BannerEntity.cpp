@@ -51,3 +51,21 @@ const cBannerEntity::PatternList& cBannerEntity::GetPatterns() const
 {
 	return m_Patterns;
 }
+
+void cBannerEntity::AddPattern(int a_Color, AString a_Pattern)
+{
+	cPattern pattern;
+	pattern.Color = a_Color;
+	pattern.Pattern = a_Pattern;
+	m_Patterns.push_back(pattern);
+}
+
+void cBannerEntity::ClearPatterns()
+{
+	m_Patterns.clear();
+}
+
+void cBannerEntity::SetPatterns(cBannerEntity::PatternList & a_Patterns)
+{
+	m_Patterns = a_Patterns;
+}

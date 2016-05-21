@@ -84,7 +84,8 @@
 #include "BlockVine.h"
 #include "BlockWallSign.h"
 #include "BlockWorkbench.h"
-
+#include "BlockBannerStanding.h"
+#include "BlockBannerWall.h"
 
 
 
@@ -304,6 +305,7 @@ cBlockHandler * cBlockHandler::CreateBlockHandler(BLOCKTYPE a_BlockType)
 		case E_BLOCK_SPRUCE_WOOD_STAIRS:    return new cBlockStairsHandler          (a_BlockType);
 		case E_BLOCK_STAINED_GLASS:         return new cBlockGlassHandler           (a_BlockType);
 		case E_BLOCK_STAINED_GLASS_PANE:    return new cBlockGlassHandler           (a_BlockType);
+		case E_BLOCK_STANDING_BANNER:       return new cBlockBannerStandingHandler  (a_BlockType);
 		case E_BLOCK_STATIONARY_LAVA:       return new cBlockLavaHandler            (a_BlockType);
 		case E_BLOCK_STATIONARY_WATER:      return new cBlockFluidHandler           (a_BlockType);
 		case E_BLOCK_STICKY_PISTON:         return new cBlockPistonHandler          (a_BlockType);
@@ -322,6 +324,7 @@ cBlockHandler * cBlockHandler::CreateBlockHandler(BLOCKTYPE a_BlockType)
 		case E_BLOCK_TRIPWIRE_HOOK:         return new cBlockTripwireHookHandler    (a_BlockType);
 		case E_BLOCK_VINES:                 return new cBlockVineHandler            (a_BlockType);
 		case E_BLOCK_WALLSIGN:              return new cBlockWallSignHandler        (a_BlockType);
+		case E_BLOCK_WALL_BANNER:           return new cBlockBannerWallHandler      (a_BlockType);
 		case E_BLOCK_WATER:                 return new cBlockFluidHandler           (a_BlockType);
 		case E_BLOCK_WOODEN_BUTTON:         return new cBlockButtonHandler          (a_BlockType);
 		case E_BLOCK_OAK_DOOR:              return new cBlockDoorHandler            (a_BlockType);

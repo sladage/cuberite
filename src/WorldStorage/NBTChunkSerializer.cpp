@@ -24,6 +24,7 @@
 #include "../BlockEntities/SignEntity.h"
 #include "../BlockEntities/MobHeadEntity.h"
 #include "../BlockEntities/FlowerPotEntity.h"
+#include "../BlockEntities/BannerEntity.h"
 
 #include "../Entities/Entity.h"
 #include "../Entities/EnderCrystal.h"
@@ -385,6 +386,28 @@ void cNBTChunkSerializer::AddFlowerPotEntity(cFlowerPotEntity * a_FlowerPot)
 		AddBasicTileEntity(a_FlowerPot, "FlowerPot");
 		m_Writer.AddInt   ("Item", static_cast<Int32>(a_FlowerPot->GetItem().m_ItemType));
 		m_Writer.AddInt   ("Data", static_cast<Int32>(a_FlowerPot->GetItem().m_ItemDamage));
+	m_Writer.EndCompound();
+}
+
+
+
+
+void cNBTChunkSerializer::AddBannerEntity(cBannerEntity * a_Banner)
+{
+	m_Writer.BeginCompound("");
+		AddBasicTileEntity(a_Banner, "Banner");
+		m_Writer.AddInt("Base", a_Banner->GetBaseColor());
+
+		m_Writer.BeginList("Patterns", TAG_Compound);
+
+		for (auto Pattern : a_Banner->GetPatterns()) {
+			m_Writer.BeginCompound("");
+			m_Writer.AddInt("Color", Pattern.Color);
+			m_Writer.AddString("Pattern", Pattern.Pattern);
+			m_Writer.EndCompound();
+		}
+
+		m_Writer.EndList();
 	m_Writer.EndCompound();
 }
 
@@ -967,24 +990,26 @@ void cNBTChunkSerializer::BlockEntity(cBlockEntity * a_Entity)
 	// Add tile-entity into NBT:
 	switch (a_Entity->GetBlockType())
 	{
-		case E_BLOCK_BEACON:        AddBeaconEntity      (reinterpret_cast<cBeaconEntity *>      (a_Entity)); break;
-		case E_BLOCK_BREWING_STAND: AddBrewingstandEntity(reinterpret_cast<cBrewingstandEntity *>(a_Entity)); break;
-		case E_BLOCK_CHEST:         AddChestEntity       (reinterpret_cast<cChestEntity *>       (a_Entity), a_Entity->GetBlockType()); break;
-		case E_BLOCK_COMMAND_BLOCK: AddCommandBlockEntity(reinterpret_cast<cCommandBlockEntity *>(a_Entity)); break;
-		case E_BLOCK_DISPENSER:     AddDispenserEntity   (reinterpret_cast<cDispenserEntity *>   (a_Entity)); break;
-		case E_BLOCK_DROPPER:       AddDropperEntity     (reinterpret_cast<cDropperEntity *>     (a_Entity)); break;
-		case E_BLOCK_ENDER_CHEST:   /* No data to be saved */                               break;
-		case E_BLOCK_FLOWER_POT:    AddFlowerPotEntity   (reinterpret_cast<cFlowerPotEntity *>   (a_Entity)); break;
-		case E_BLOCK_FURNACE:       AddFurnaceEntity     (reinterpret_cast<cFurnaceEntity *>     (a_Entity)); break;
-		case E_BLOCK_HEAD:          AddMobHeadEntity     (reinterpret_cast<cMobHeadEntity *>     (a_Entity)); break;
-		case E_BLOCK_HOPPER:        AddHopperEntity      (reinterpret_cast<cHopperEntity *>      (a_Entity)); break;
-		case E_BLOCK_JUKEBOX:       AddJukeboxEntity     (reinterpret_cast<cJukeboxEntity *>     (a_Entity)); break;
-		case E_BLOCK_LIT_FURNACE:   AddFurnaceEntity     (reinterpret_cast<cFurnaceEntity *>     (a_Entity)); break;
-		case E_BLOCK_MOB_SPAWNER:   AddMobSpawnerEntity  (reinterpret_cast<cMobSpawnerEntity *>  (a_Entity)); break;
-		case E_BLOCK_NOTE_BLOCK:    AddNoteEntity        (reinterpret_cast<cNoteEntity *>        (a_Entity)); break;
-		case E_BLOCK_SIGN_POST:     AddSignEntity        (reinterpret_cast<cSignEntity *>        (a_Entity)); break;
-		case E_BLOCK_TRAPPED_CHEST: AddChestEntity       (reinterpret_cast<cChestEntity *>       (a_Entity), a_Entity->GetBlockType()); break;
-		case E_BLOCK_WALLSIGN:      AddSignEntity        (reinterpret_cast<cSignEntity *>        (a_Entity)); break;
+		case E_BLOCK_BEACON:          AddBeaconEntity      (reinterpret_cast<cBeaconEntity *>      (a_Entity)); break;
+		case E_BLOCK_BREWING_STAND:   AddBrewingstandEntity(reinterpret_cast<cBrewingstandEntity *>(a_Entity)); break;
+		case E_BLOCK_CHEST:           AddChestEntity       (reinterpret_cast<cChestEntity *>       (a_Entity), a_Entity->GetBlockType()); break;
+		case E_BLOCK_COMMAND_BLOCK:   AddCommandBlockEntity(reinterpret_cast<cCommandBlockEntity *>(a_Entity)); break;
+		case E_BLOCK_DISPENSER:       AddDispenserEntity   (reinterpret_cast<cDispenserEntity *>   (a_Entity)); break;
+		case E_BLOCK_DROPPER:         AddDropperEntity     (reinterpret_cast<cDropperEntity *>     (a_Entity)); break;
+		case E_BLOCK_ENDER_CHEST:     /* No data to be saved */                               break;
+		case E_BLOCK_FLOWER_POT:      AddFlowerPotEntity   (reinterpret_cast<cFlowerPotEntity *>   (a_Entity)); break;
+		case E_BLOCK_FURNACE:         AddFurnaceEntity     (reinterpret_cast<cFurnaceEntity *>     (a_Entity)); break;
+		case E_BLOCK_HEAD:            AddMobHeadEntity     (reinterpret_cast<cMobHeadEntity *>     (a_Entity)); break;
+		case E_BLOCK_HOPPER:          AddHopperEntity      (reinterpret_cast<cHopperEntity *>      (a_Entity)); break;
+		case E_BLOCK_JUKEBOX:         AddJukeboxEntity     (reinterpret_cast<cJukeboxEntity *>     (a_Entity)); break;
+		case E_BLOCK_LIT_FURNACE:     AddFurnaceEntity     (reinterpret_cast<cFurnaceEntity *>     (a_Entity)); break;
+		case E_BLOCK_MOB_SPAWNER:     AddMobSpawnerEntity  (reinterpret_cast<cMobSpawnerEntity *>  (a_Entity)); break;
+		case E_BLOCK_NOTE_BLOCK:      AddNoteEntity        (reinterpret_cast<cNoteEntity *>        (a_Entity)); break;
+		case E_BLOCK_SIGN_POST:       AddSignEntity        (reinterpret_cast<cSignEntity *>        (a_Entity)); break;
+		case E_BLOCK_STANDING_BANNER: AddBannerEntity      (reinterpret_cast<cBannerEntity *>      (a_Entity)); break;
+		case E_BLOCK_TRAPPED_CHEST:   AddChestEntity       (reinterpret_cast<cChestEntity *>       (a_Entity), a_Entity->GetBlockType()); break;
+		case E_BLOCK_WALLSIGN:        AddSignEntity        (reinterpret_cast<cSignEntity *>        (a_Entity)); break;
+		case E_BLOCK_WALL_BANNER:     AddBannerEntity      (reinterpret_cast<cBannerEntity *>      (a_Entity)); break;
 
 		default:
 		{

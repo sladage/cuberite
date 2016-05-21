@@ -35,7 +35,7 @@ public:
 		AString Pattern;
 	};
 
-	typedef std::list<cPattern> PatternList;
+	typedef std::vector<cPattern> PatternList;
 
 	// tolua_begin
 
@@ -45,11 +45,19 @@ public:
 	/** Get the base color */
 	int GetBaseColor() const;
 
+	/** Add pattern */
+	void AddPattern(int a_Color, AString a_Pattern);
+
+	/** Clear patterns */
+	void ClearPatterns();
+
 	// tolua_end
 
 
-	/** Set the  */
+	/** Set the patterns */
+	void SetPatterns(PatternList & list);
 
+	/** Get the patterns. */
 	const PatternList& GetPatterns() const;
 
 	virtual bool UsedBy(cPlayer * a_Player) override;

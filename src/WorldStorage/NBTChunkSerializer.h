@@ -51,7 +51,7 @@ class cHangingEntity;
 class cItemFrame;
 class cPainting;
 class cEntityEffect;
-
+class cBannerEntity;
 
 
 
@@ -111,6 +111,7 @@ protected:
 	void AddMobHeadEntity     (cMobHeadEntity *      a_MobHead);
 	void AddCommandBlockEntity(cCommandBlockEntity * a_CmdBlock);
 	void AddFlowerPotEntity   (cFlowerPotEntity *    a_FlowerPot);
+	void AddBannerEntity      (cBannerEntity *       a_Banner);
 
 	// Entities:
 	void AddBasicEntity       (cEntity * a_Entity, const AString & a_ClassName);

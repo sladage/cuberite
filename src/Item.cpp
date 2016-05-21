@@ -9,6 +9,51 @@
 
 
 
+cItem::cItem(const cItem & a_CopyFrom) :
+	m_ItemType(a_CopyFrom.m_ItemType),
+	m_ItemCount(a_CopyFrom.m_ItemCount),
+	m_ItemDamage(a_CopyFrom.m_ItemDamage),
+	m_Enchantments(a_CopyFrom.m_Enchantments),
+	m_CustomName(a_CopyFrom.m_CustomName),
+	m_Lore(a_CopyFrom.m_Lore),
+	m_RepairCost(a_CopyFrom.m_RepairCost),
+	m_FireworkItem(a_CopyFrom.m_FireworkItem),
+	m_ItemColor(a_CopyFrom.m_ItemColor)
+{
+	if (a_CopyFrom.ItemMeta()) {
+		cItemMeta * meta = GetHandler()->MakeItemMeta();
+		if (meta) {
+			meta->FromCopy(a_CopyFrom.ItemMeta());
+			SetItemMeta(meta);
+		}
+	}
+}
+
+
+
+cItem & cItem::operator=(const cItem & a_Copy)
+{
+	m_ItemType = a_Copy.m_ItemType;
+	m_ItemCount = a_Copy.m_ItemCount;
+	m_ItemDamage = a_Copy.m_ItemDamage;
+	m_Enchantments = a_Copy.m_Enchantments;
+	m_CustomName = a_Copy.m_CustomName;
+	m_Lore = a_Copy.m_Lore;
+	m_RepairCost = a_Copy.m_RepairCost;
+	m_FireworkItem = a_Copy.m_FireworkItem;
+	m_ItemColor = a_Copy.m_ItemColor;
+
+	if (a_Copy.ItemMeta()) {
+		cItemMeta * meta = GetHandler()->MakeItemMeta();
+		if (meta) {
+			meta->FromCopy(a_Copy.ItemMeta());
+			SetItemMeta(meta);
+		}
+	}
+
+	return *this;
+}
+
 
 
 cItem cItem::CopyOne(void) const
@@ -397,6 +442,19 @@ bool cItem::EnchantByXPLevels(int a_NumXPLevels)
 	return true;
 }
 
+
+
+cItemMeta* cItem::ItemMeta() const
+{
+	return m_ItemMeta.get();
+}
+
+
+
+void cItem::SetItemMeta(cItemMeta * a_ItemMeta)
+{
+	m_ItemMeta.reset(a_ItemMeta);
+}
 
 
 

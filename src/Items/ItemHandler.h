@@ -13,7 +13,7 @@
 // fwd:
 class cWorld;
 class cPlayer;
-
+class cItemMeta;
 
 
 
@@ -153,6 +153,10 @@ public:
 	/** Returns whether this tool / item can harvest a specific block (e.g. iron pickaxe can harvest diamond ore, but wooden one can't).
 	Defaults to false unless overridden. */
 	virtual bool CanHarvestBlock(BLOCKTYPE a_BlockType);
+
+	/** Allocate the correct metadata storage class. */
+	virtual cItemMeta* MakeItemMeta();
+
 
 	static cItemHandler * GetItemHandler(int a_ItemType);
 	static cItemHandler * GetItemHandler(const cItem & a_Item) { return GetItemHandler(a_Item.m_ItemType); }

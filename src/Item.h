@@ -16,11 +16,10 @@
 
 
 
-
-
 // fwd:
 class cItemHandler;
 class cColor;
+class cItemMeta;
 
 namespace Json
 {
@@ -81,22 +80,14 @@ public:
 
 	// The constructor is disabled in code, because the compiler generates it anyway,
 	// but it needs to stay because ToLua needs to generate the binding for it
-	#if 0
+	//#if 0
 
 	/** Creates an exact copy of the item */
-	cItem(const cItem & a_CopyFrom) :
-		m_ItemType    (a_CopyFrom.m_ItemType),
-		m_ItemCount   (a_CopyFrom.m_ItemCount),
-		m_ItemDamage  (a_CopyFrom.m_ItemDamage),
-		m_Enchantments(a_CopyFrom.m_Enchantments),
-		m_CustomName  (a_CopyFrom.m_CustomName),
-		m_Lore        (a_CopyFrom.m_Lore),
-		m_RepairCost  (a_CopyFrom.m_RepairCost),
-		m_FireworkItem(a_CopyFrom.m_FireworkItem)
-	{
-	}
+	cItem(const cItem & a_CopyFrom);
 
-	#endif
+	//#endif
+
+	cItem & operator=(const cItem & a_Copy);
 
 
 	void Empty(void)
@@ -201,6 +192,14 @@ public:
 	Returns true if item enchanted, false if not. */
 	bool EnchantByXPLevels(int a_NumXPLevels);  // tolua_export
 
+	/** Get this items meta data. */
+	cItemMeta* ItemMeta() const;
+
+	/** Sets this items meta data storage. Deletes previous cItemMeta if it had any. */
+	void SetItemMeta(cItemMeta * a_ItemMeta);
+
+	std::unique_ptr<cItemMeta> m_ItemMeta;
+
 	// tolua_begin
 
 	short          m_ItemType;
@@ -266,4 +265,17 @@ public:
 
 
 
+/** Storage class for item meta data */
+class cItemMeta
+{
+public:
+	virtual ~cItemMeta() {}
 
+	/** Load from NBT source. */
+	virtual void FromNBT(const cParsedNBT & a_NBT) = 0;
+
+	/** Load from copy. */
+	virtual void FromCopy(const cItemMeta * a_Meta) = 0;
+
+	//toJson?
+};
