@@ -53,7 +53,6 @@ public:
 
 	// tolua_end
 
-
 	/** Set the patterns */
 	void SetPatterns(PatternList & list);
 

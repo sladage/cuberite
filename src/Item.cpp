@@ -20,10 +20,10 @@ cItem::cItem(const cItem & a_CopyFrom) :
 	m_FireworkItem(a_CopyFrom.m_FireworkItem),
 	m_ItemColor(a_CopyFrom.m_ItemColor)
 {
-	if (a_CopyFrom.ItemMeta()) {
+	if (a_CopyFrom.GetItemMeta()) {
 		cItemMeta * meta = GetHandler()->MakeItemMeta();
 		if (meta) {
-			meta->FromCopy(a_CopyFrom.ItemMeta());
+			meta->FromCopy(a_CopyFrom.GetItemMeta());
 			SetItemMeta(meta);
 		}
 	}
@@ -43,10 +43,10 @@ cItem & cItem::operator=(const cItem & a_Copy)
 	m_FireworkItem = a_Copy.m_FireworkItem;
 	m_ItemColor = a_Copy.m_ItemColor;
 
-	if (a_Copy.ItemMeta()) {
+	if (a_Copy.GetItemMeta()) {
 		cItemMeta * meta = GetHandler()->MakeItemMeta();
 		if (meta) {
-			meta->FromCopy(a_Copy.ItemMeta());
+			meta->FromCopy(a_Copy.GetItemMeta());
 			SetItemMeta(meta);
 		}
 	}
@@ -203,6 +203,10 @@ void cItem::GetJson(Json::Value & a_OutValue) const
 			a_OutValue["FadeColours"] = m_FireworkItem.FadeColoursToString(m_FireworkItem);
 		}
 
+		if (GetItemMeta()) {
+			GetItemMeta()->ToJSON(a_OutValue);
+		}
+
 		a_OutValue["RepairCost"] = m_RepairCost;
 	}
 }
@@ -243,6 +247,13 @@ void cItem::FromJson(const Json::Value & a_Value)
 			m_FireworkItem.m_FlightTimeInTicks = static_cast<short>(a_Value.get("FlightTimeInTicks", 0).asInt());
 			m_FireworkItem.ColoursFromString(a_Value.get("Colours", "").asString(), m_FireworkItem);
 			m_FireworkItem.FadeColoursFromString(a_Value.get("FadeColours", "").asString(), m_FireworkItem);
+		}
+
+		cItemMeta * meta = GetHandler()->MakeItemMeta();
+
+		if (meta) {
+			meta->FromJSON(a_Value);
+			SetItemMeta(meta);
 		}
 
 		m_RepairCost = a_Value.get("RepairCost", 0).asInt();
@@ -444,7 +455,7 @@ bool cItem::EnchantByXPLevels(int a_NumXPLevels)
 
 
 
-cItemMeta* cItem::ItemMeta() const
+cItemMeta* cItem::GetItemMeta() const
 {
 	return m_ItemMeta.get();
 }

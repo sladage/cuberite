@@ -7,7 +7,7 @@
 #include "json/value.h"
 #include "BannerEntity.h"
 #include "../ClientHandle.h"
-
+#include "../Entities/Player.h"
 
 
 
@@ -43,6 +43,8 @@ int cBannerEntity::GetBaseColor() const
 
 void cBannerEntity::SendTo(cClientHandle & a_Client)
 {
+	cWorld * World = a_Client.GetPlayer()->GetWorld();
+	a_Client.SendBlockChange(m_PosX, m_PosY, m_PosZ, m_BlockType, World->GetBlockMeta(m_PosX, m_PosY, m_PosZ));
 	a_Client.SendUpdateBlockEntity(*this);
 }
 

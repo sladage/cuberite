@@ -7,7 +7,7 @@
 #include "CraftingRecipes.h"
 #include "Root.h"
 #include "Bindings/PluginManager.h"
-
+#include "Items\ItemBanner.h"
 
 
 
@@ -787,6 +787,9 @@ cCraftingRecipes::cRecipe * cCraftingRecipes::MatchRecipe(const cItem * a_Crafti
 	// We use Recipe instead of a_Recipe because we want the wildcard ingredients' slot numbers as well, which was just added previously
 	HandleFireworks(a_CraftingGrid, Recipe.get(), a_GridStride, a_OffsetX, a_OffsetY);
 
+	// Handle Banners
+	HandleBanners(a_CraftingGrid, Recipe.get(), a_GridStride, a_OffsetX, a_OffsetY);
+
 	// Handle Dyed Leather
 	HandleDyedLeather(a_CraftingGrid, Recipe.get(), a_GridStride, a_GridWidth, a_GridHeight);
 
@@ -871,6 +874,58 @@ void cCraftingRecipes::HandleFireworks(const cItem * a_CraftingGrid, cCraftingRe
 			// Only dye? Normal colours.
 			a_Recipe->m_Result.m_FireworkItem.m_Colours = DyeColours;
 		}
+	}
+}
+
+
+
+
+
+void cCraftingRecipes::HandleBanners(const cItem * a_CraftingGrid, cCraftingRecipes::cRecipe * a_Recipe, int a_GridStride, int a_OffsetX, int a_OffsetY)
+{
+	// TODO: add support for more than one dye in the recipe
+	// A manual and temporary solution (listing everything) is in crafting.txt for fade colours, but a programmatic solutions needs to be done for everything else
+
+	if (a_Recipe->m_Result.m_ItemType == E_ITEM_BANNER)
+	{
+		NIBBLETYPE dyeColor;
+		cItem * parentBanner = nullptr;
+
+		// Get the base color
+		for (auto recipeSlot : a_Recipe->m_Ingredients)
+		{
+			switch (recipeSlot.m_Item.m_ItemType)
+			{
+			case E_ITEM_DYE:
+			{
+				int GridID = (recipeSlot.x + a_OffsetX) + a_GridStride * (recipeSlot.y + a_OffsetY);
+				dyeColor = static_cast<NIBBLETYPE>(a_CraftingGrid[GridID].m_ItemDamage & 0x0f);
+				break;
+			}
+			case E_BLOCK_WOOL:
+			{
+				//recipeSlot.m_Item.m_ItemColor.
+				break;
+			}
+			case E_ITEM_BANNER: parentBanner = &recipeSlot.m_Item; break;
+
+			default: LOG("Unexpected item in firework star recipe, was the crafting file's fireworks section changed?"); break;  // ermahgerd BARD ardmins
+			}
+		}
+
+		if (parentBanner == nullptr) {
+			// Just base color, no patterns
+			cBannerItemMeta * meta = static_cast<cBannerItemMeta*>(a_Recipe->m_Result.GetHandler()->MakeItemMeta());
+			meta->m_Base = dyeColor;
+		} else {
+			// Get base color and patterns from parent
+			cBannerItemMeta * meta = static_cast<cBannerItemMeta*>(a_Recipe->m_Result.GetHandler()->MakeItemMeta());
+			meta->FromCopy(parentBanner->GetItemMeta());
+
+			// Now add the new pattern
+
+		}
+
 	}
 }
 

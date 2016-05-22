@@ -19,7 +19,6 @@
 // fwd:
 class cItemHandler;
 class cColor;
-class cItemMeta;
 
 namespace Json
 {
@@ -27,7 +26,30 @@ namespace Json
 }
 
 
+/** Storage class for item meta data */
+class cItemMeta
+{
+public:
+	virtual ~cItemMeta() {}
 
+	/** Load from NBT source. */
+	virtual void FromNBT(const cParsedNBT & a_NBT) = 0;
+
+	/** Load from copy. */
+	virtual void FromCopy(const cItemMeta * a_Meta) = 0;
+
+	/** From JSON */
+	virtual void FromJSON(const Json::Value & a_Value) = 0;
+
+	/** Write to NBT */
+	virtual void ToNBT(cFastNBTWriter & a_Writer) = 0;
+
+	/** To JSON */
+	virtual void ToJSON(Json::Value & a_OutValue) = 0;
+
+	/** Is equal to */
+	virtual bool IsEqual(cItemMeta * a_ItemMeta) = 0;
+};
 
 
 // tolua_begin
@@ -129,7 +151,11 @@ public:
 			(m_Enchantments == a_Item.m_Enchantments) &&
 			(m_CustomName == a_Item.m_CustomName) &&
 			(m_Lore == a_Item.m_Lore) &&
-			m_FireworkItem.IsEqualTo(a_Item.m_FireworkItem)
+			m_FireworkItem.IsEqualTo(a_Item.m_FireworkItem) &&
+			(
+				(GetItemMeta() == nullptr && a_Item.GetItemMeta() == nullptr) || 
+				(GetItemMeta() && a_Item.GetItemMeta() && GetItemMeta()->IsEqual(a_Item.GetItemMeta()))
+			)
 		);
 	}
 
@@ -193,7 +219,7 @@ public:
 	bool EnchantByXPLevels(int a_NumXPLevels);  // tolua_export
 
 	/** Get this items meta data. */
-	cItemMeta* ItemMeta() const;
+	cItemMeta* GetItemMeta() const;
 
 	/** Sets this items meta data storage. Deletes previous cItemMeta if it had any. */
 	void SetItemMeta(cItemMeta * a_ItemMeta);
@@ -265,17 +291,3 @@ public:
 
 
 
-/** Storage class for item meta data */
-class cItemMeta
-{
-public:
-	virtual ~cItemMeta() {}
-
-	/** Load from NBT source. */
-	virtual void FromNBT(const cParsedNBT & a_NBT) = 0;
-
-	/** Load from copy. */
-	virtual void FromCopy(const cItemMeta * a_Meta) = 0;
-
-	//toJson?
-};

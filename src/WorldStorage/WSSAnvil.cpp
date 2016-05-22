@@ -16,6 +16,7 @@
 #include "../StringCompression.h"
 #include "../SetChunkData.h"
 #include "../Root.h"
+#include "../Items/ItemHandler.h"
 
 #include "../BlockEntities/BeaconEntity.h"
 #include "../BlockEntities/BrewingstandEntity.h"
@@ -821,6 +822,14 @@ bool cWSSAnvil::LoadItemFromNBT(cItem & a_Item, const cParsedNBT & a_NBT, int a_
 	if (EnchTag > 0)
 	{
 		cFireworkItem::ParseFromNBT(a_Item.m_FireworkItem, a_NBT, FireworksTag, static_cast<ENUM_ITEM_ID>(a_Item.m_ItemType));
+	}
+
+	//Set item metadata
+	cItemMeta * meta = a_Item.GetHandler()->MakeItemMeta();
+
+	if (meta) {
+		meta->FromNBT(a_NBT);
+		a_Item.SetItemMeta(meta);
 	}
 
 	return true;

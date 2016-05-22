@@ -15,12 +15,15 @@ class cBannerItemMeta : public cItemMeta
 public:
 	virtual void FromNBT(const cParsedNBT & a_NBT)
 	{
-		int root = a_NBT.GetFirstChild(a_NBT.GetRoot());
-		int base = a_NBT.FindChildByName(root, "Base");
+		int blockent = /*a_NBT.GetFirstChild(a_NBT.GetRoot());*/a_NBT.FindChildByName(a_NBT.GetRoot(), "BlockEntityTag");
+		if (blockent < 0) {
+			return;
+		}
+		int base = a_NBT.FindChildByName(blockent, "Base");
 		if (base >= 0) {
 			m_Base = a_NBT.GetInt(base);
 		}
-		int patterns = a_NBT.FindChildByName(root, "Patterns");
+		int patterns = a_NBT.FindChildByName(blockent, "Patterns");
 		if (patterns >= 0) {
 			int pattern = a_NBT.GetFirstChild(patterns);
 			while (pattern >= 0) {
@@ -42,6 +45,75 @@ public:
 		if (!meta) return;
 		m_Base = meta->m_Base;
 		m_Patterns = meta->m_Patterns;
+	}
+
+	virtual void FromJSON(const Json::Value & a_Value)
+	{
+		Json::Value banner = a_Value["Banner"];
+		m_Base = banner["Base"].asInt();
+
+		Json::Value patterns = banner["Patterns"];
+		if (patterns.isNull())
+			return;
+
+		for (auto pattern : patterns) {
+			cBannerEntity::cPattern p;
+			p.Color = pattern["Color"].asInt();
+			p.Pattern = pattern["Pattern"].asString();
+			m_Patterns.push_back(p);
+		}
+	}
+
+	virtual void ToNBT(cFastNBTWriter & a_Writer)
+	{
+		a_Writer.BeginCompound("BlockEntityTag");
+
+		a_Writer.AddInt("Base", m_Base);
+
+		a_Writer.BeginList("Patterns", TAG_Compound);
+
+		for (auto Pattern : m_Patterns) {
+			a_Writer.BeginCompound("");
+			a_Writer.AddInt("Color", Pattern.Color);
+			a_Writer.AddString("Pattern", Pattern.Pattern);
+			a_Writer.EndCompound();
+		}
+
+		a_Writer.EndList();
+
+		a_Writer.EndCompound();
+	}
+
+	virtual void ToJSON(Json::Value & a_OutValue)
+	{
+		Json::Value banner;
+		banner["Base"] = m_Base;
+
+		Json::Value patterns;
+		for (auto Pattern : m_Patterns) {
+			Json::Value p;
+			p["Color"] = Pattern.Color;
+			p["Pattern"] = Pattern.Pattern;
+			patterns.append(p);
+		}
+		banner["Patterns"] = patterns;
+
+		a_OutValue["Banner"] = banner;
+	}
+
+	virtual bool IsEqual(cItemMeta * a_ItemMeta)
+	{
+		cBannerItemMeta * meta = dynamic_cast<cBannerItemMeta*>(a_ItemMeta);
+		if (!meta) return false;
+		if (meta->m_Base != m_Base) return false;
+		if (meta->m_Patterns.size() != m_Patterns.size()) return false;
+		for (int i = 0; i < m_Patterns.size(); ++i) {
+			auto left = m_Patterns[i];
+			auto right = meta->m_Patterns[i];
+			if (left.Color != right.Color) return false;
+			if (left.Pattern != right.Pattern) return false;
+		}
+		return true;
 	}
 
 	int m_Base;
@@ -108,7 +180,7 @@ public:
 				m_BlockMeta(a_BlockMeta)
 			{}
 		};
-		cCallback Callback(a_Player, dynamic_cast<cBannerItemMeta*>(a_EquippedItem.ItemMeta()), static_cast<NIBBLETYPE>(a_BlockFace));
+		cCallback Callback(a_Player, dynamic_cast<cBannerItemMeta*>(a_EquippedItem.GetItemMeta()), static_cast<NIBBLETYPE>(a_BlockFace));
 		a_World.DoWithBlockEntityAt(a_BlockX, a_BlockY, a_BlockZ, Callback);
 
 		return true;

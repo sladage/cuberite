@@ -141,6 +141,12 @@ void cNBTChunkSerializer::AddItem(const cItem & a_Item, int a_Slot, const AStrin
 				const char * TagName = (a_Item.m_ItemType == E_ITEM_BOOK) ? "StoredEnchantments" : "ench";
 				EnchantmentSerializer::WriteToNBTCompound(a_Item.m_Enchantments, m_Writer, TagName);
 			}
+
+			if (a_Item.GetItemMeta()) {
+				a_Item.GetItemMeta()->ToNBT(m_Writer);
+			}
+
+
 		m_Writer.EndCompound();
 	}
 

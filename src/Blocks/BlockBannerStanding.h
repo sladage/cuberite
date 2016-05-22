@@ -7,8 +7,6 @@
 
 
 
-
-
 class cBlockBannerStandingHandler :
 	public cBlockHandler
 {
@@ -22,8 +20,10 @@ public:
 
 	virtual void ConvertToPickups(cItems & a_Pickups, NIBBLETYPE a_BlockMeta) override
 	{
-		a_Pickups.push_back(cItem(E_ITEM_BANNER, 1, 0));
+		// The drop spawn is in the OnDestroyedByPlayer method
 	}
+
+	virtual void OnDestroyedByPlayer(cChunkInterface & a_ChunkInterface, cWorldInterface & a_WorldInterface, cPlayer * a_Player, int a_BlockX, int a_BlockY, int a_BlockZ) override;
 
 	virtual bool CanBeAt(cChunkInterface & a_ChunkInterface, int a_RelX, int a_RelY, int a_RelZ, const cChunk & a_Chunk) override
 	{

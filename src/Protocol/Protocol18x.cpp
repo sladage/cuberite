@@ -3018,7 +3018,7 @@ void cProtocol180::WriteItem(cPacketizer & a_Pkt, const cItem & a_Item)
 	a_Pkt.WriteBEInt8(a_Item.m_ItemCount);
 	a_Pkt.WriteBEInt16(a_Item.m_ItemDamage);
 
-	if (a_Item.m_Enchantments.IsEmpty() && a_Item.IsBothNameAndLoreEmpty() && (a_Item.m_ItemType != E_ITEM_FIREWORK_ROCKET) && (a_Item.m_ItemType != E_ITEM_FIREWORK_STAR) && !a_Item.m_ItemColor.IsValid())
+	if (a_Item.m_Enchantments.IsEmpty() && a_Item.IsBothNameAndLoreEmpty() && (a_Item.m_ItemType != E_ITEM_FIREWORK_ROCKET) && (a_Item.m_ItemType != E_ITEM_FIREWORK_STAR) && !a_Item.m_ItemColor.IsValid() && a_Item.GetItemMeta() == nullptr)
 	{
 		a_Pkt.WriteBEInt8(0);
 		return;
@@ -3070,6 +3070,10 @@ void cProtocol180::WriteItem(cPacketizer & a_Pkt, const cItem & a_Item)
 	if ((a_Item.m_ItemType == E_ITEM_FIREWORK_ROCKET) || (a_Item.m_ItemType == E_ITEM_FIREWORK_STAR))
 	{
 		cFireworkItem::WriteToNBTCompound(a_Item.m_FireworkItem, Writer, static_cast<ENUM_ITEM_ID>(a_Item.m_ItemType));
+	}
+	if (a_Item.GetItemMeta())
+	{
+		a_Item.GetItemMeta()->ToNBT(Writer);
 	}
 	Writer.Finish();
 
@@ -3184,18 +3188,21 @@ void cProtocol180::WriteBlockEntity(cPacketizer & a_Pkt, const cBlockEntity & a_
 			Writer.AddInt("x", BannerEntity.GetPosX());
 			Writer.AddInt("y", BannerEntity.GetPosY());
 			Writer.AddInt("z", BannerEntity.GetPosZ());
+
 			Writer.AddInt("Base", BannerEntity.GetBaseColor());
 
-			Writer.BeginList("Patterns",TAG_Compound);
+			if (BannerEntity.GetPatterns().size() > 0) {
+				Writer.BeginList("Patterns", TAG_Compound);
 
-			for (auto Pattern : BannerEntity.GetPatterns()) {
-				Writer.BeginCompound("");
-				Writer.AddInt("Color", Pattern.Color);
-				Writer.AddString("Pattern", Pattern.Pattern);
-				Writer.EndCompound();
+				for (auto Pattern : BannerEntity.GetPatterns()) {
+					Writer.BeginCompound("");
+					Writer.AddInt("Color", Pattern.Color);
+					Writer.AddString("Pattern", Pattern.Pattern);
+					Writer.EndCompound();
+				}
+
+				Writer.EndList();
 			}
-
-			Writer.EndList();
 
 			Writer.AddString("id", "Banner");
 			break;

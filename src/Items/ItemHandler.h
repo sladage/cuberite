@@ -154,7 +154,7 @@ public:
 	Defaults to false unless overridden. */
 	virtual bool CanHarvestBlock(BLOCKTYPE a_BlockType);
 
-	/** Allocate the correct metadata storage class. */
+	/** Allocate the metadata storage class for this item. */
 	virtual cItemMeta* MakeItemMeta();
 
 
