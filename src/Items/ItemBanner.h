@@ -153,6 +153,7 @@ public:
 					p["Pattern"] = a_NBT.GetString(ptPattern);
 					patterns.append(p);
 				}
+				patternTag = a_NBT.GetNextSibling(patternTag);
 			}
 			banner["Patterns"] = patterns;
 		}
