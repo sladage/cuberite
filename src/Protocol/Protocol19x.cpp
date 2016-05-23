@@ -54,6 +54,7 @@ Implements the 1.9.x protocol classes:
 #include "../BlockEntities/MobHeadEntity.h"
 #include "../BlockEntities/MobSpawnerEntity.h"
 #include "../BlockEntities/FlowerPotEntity.h"
+#include "../BlockEntities/BannerEntity.h"
 #include "Bindings/PluginManager.h"
 
 
@@ -1533,6 +1534,8 @@ void cProtocol190::SendUpdateBlockEntity(cBlockEntity & a_BlockEntity)
 		case E_BLOCK_BEACON:        Action = 3; break;  // Update beacon entity
 		case E_BLOCK_HEAD:          Action = 4; break;  // Update Mobhead entity
 		case E_BLOCK_FLOWER_POT:    Action = 5; break;  // Update flower pot
+		case E_BLOCK_STANDING_BANNER:
+		case E_BLOCK_WALL_BANNER:     Action = 6; break; // Update banner base colour and patterns
 		default: ASSERT(!"Unhandled or unimplemented BlockEntity update request!"); break;
 	}
 	Pkt.WriteBEUInt8(Action);
@@ -3059,6 +3062,8 @@ void cProtocol190::ParseItemMetadata(cItem & a_Item, const AString & a_Metadata)
 			default: LOGD("Unimplemented NBT data when parsing!"); break;
 		}
 	}
+
+	a_Item.GetHandler()->MetadataFromNBT(a_Item.m_Metadata, NBT);
 }
 
 
@@ -3207,7 +3212,7 @@ void cProtocol190::WriteItem(cPacketizer & a_Pkt, const cItem & a_Item)
 		a_Pkt.WriteBEInt16(a_Item.m_ItemDamage);
 	}
 
-	if (a_Item.m_Enchantments.IsEmpty() && a_Item.IsBothNameAndLoreEmpty() && (ItemType != E_ITEM_FIREWORK_ROCKET) && (ItemType != E_ITEM_FIREWORK_STAR) && !a_Item.m_ItemColor.IsValid() && (ItemType != E_ITEM_POTION) && (ItemType != E_ITEM_SPAWN_EGG))
+	if (a_Item.m_Enchantments.IsEmpty() && a_Item.IsBothNameAndLoreEmpty() && (ItemType != E_ITEM_FIREWORK_ROCKET) && (ItemType != E_ITEM_FIREWORK_STAR) && !a_Item.m_ItemColor.IsValid() && (ItemType != E_ITEM_POTION) && (ItemType != E_ITEM_SPAWN_EGG) && a_Item.m_Metadata.isNull())
 	{
 		a_Pkt.WriteBEInt8(0);
 		return;
@@ -3330,6 +3335,11 @@ void cProtocol190::WriteItem(cPacketizer & a_Pkt, const cItem & a_Item)
 		}
 	}
 
+	if (!a_Item.m_Metadata.isNull())
+	{
+		a_Item.GetHandler()->MetadataToNBT(a_Item.m_Metadata, Writer);
+	}
+
 	Writer.Finish();
 
 	AString Result = Writer.GetResult();
@@ -3432,6 +3442,34 @@ void cProtocol190::WriteBlockEntity(cPacketizer & a_Pkt, const cBlockEntity & a_
 			Writer.AddString("EntityId", cMonster::MobTypeToVanillaName(MobSpawnerEntity.GetEntity()));
 			Writer.AddShort("Delay", MobSpawnerEntity.GetSpawnDelay());
 			Writer.AddString("id", "MobSpawner");
+			break;
+		}
+
+		case E_BLOCK_STANDING_BANNER:
+		case E_BLOCK_WALL_BANNER:
+		{
+			auto & BannerEntity = reinterpret_cast<const cBannerEntity &>(a_BlockEntity);
+
+			Writer.AddInt("x", BannerEntity.GetPosX());
+			Writer.AddInt("y", BannerEntity.GetPosY());
+			Writer.AddInt("z", BannerEntity.GetPosZ());
+
+			Writer.AddInt("Base", BannerEntity.GetBaseColor());
+
+			if (BannerEntity.GetPatterns().size() > 0) {
+				Writer.BeginList("Patterns", TAG_Compound);
+
+				for (auto Pattern : BannerEntity.GetPatterns()) {
+					Writer.BeginCompound("");
+					Writer.AddInt("Color", Pattern.Color);
+					Writer.AddString("Pattern", Pattern.Pattern);
+					Writer.EndCompound();
+				}
+
+				Writer.EndList();
+			}
+
+			Writer.AddString("id", "Banner");
 			break;
 		}
 

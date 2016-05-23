@@ -29,13 +29,19 @@ void _OnDestroyedByPlayer(cChunkInterface & a_ChunkInterface, cWorldInterface & 
 			cItem banner(E_ITEM_BANNER, 1, 0);
 
 			// set meta data
-			cItemMeta * meta = banner.GetHandler()->MakeItemMeta();
-			if (meta) {
-				cBannerItemMeta * bannerMeta = static_cast<cBannerItemMeta*>(meta);
-				bannerMeta->m_Base = BannerEntity->GetBaseColor();
-				bannerMeta->m_Patterns = BannerEntity->GetPatterns();
-				banner.SetItemMeta(bannerMeta);
+			Json::Value bannerMeta;
+			bannerMeta["Base"] = BannerEntity->GetBaseColor();
+			if (BannerEntity->GetPatterns().size() > 0) {
+				Json::Value patterns;
+				for (auto pattern : BannerEntity->GetPatterns()) {
+					Json::Value p;
+					p["Color"] = pattern.Color;
+					p["Pattern"] = pattern.Pattern;
+					patterns.append(p);
+				}
+				bannerMeta["Patterns"] = patterns;
 			}
+			banner.m_Metadata["Banner"] = bannerMeta;
 
 			Pickups.Add(banner);
 			MTRand r1;

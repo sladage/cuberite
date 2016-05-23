@@ -130,6 +130,8 @@ protected:
 	A normalized recipe starts at (0, 0) */
 	struct cRecipe
 	{
+		AString       m_Name;
+
 		cRecipeSlots m_Ingredients;
 		cItem        m_Result;
 
@@ -172,7 +174,7 @@ protected:
 	void HandleDyedLeather(const cItem * a_CraftingGrid, cCraftingRecipes::cRecipe * a_Recipe, int a_GridStride, int a_GridWidth, int a_GridHeight);
 
 	/** Searches for anything banner related, and does the data setting if appropriate */
-	void HandleBanners(const cItem * a_CraftingGrid, cCraftingRecipes::cRecipe * a_Recipe, int a_GridStride, int a_OffsetX, int a_OffsetY);
+	bool HandleBanners(const cItem * a_CraftingGrid, cCraftingRecipes::cRecipe * a_Recipe, int a_GridStride, int a_OffsetX, int a_OffsetY);
 } ;
 
 

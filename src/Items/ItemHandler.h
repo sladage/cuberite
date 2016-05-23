@@ -154,9 +154,11 @@ public:
 	Defaults to false unless overridden. */
 	virtual bool CanHarvestBlock(BLOCKTYPE a_BlockType);
 
-	/** Allocate the metadata storage class for this item. */
-	virtual cItemMeta* MakeItemMeta();
+	/** Build NBT data from json metadata */
+	virtual void MetadataToNBT(const Json::Value & a_Metadata, cFastNBTWriter & a_Writer);
 
+	/** Build json metadata from NBT data */
+	virtual void MetadataFromNBT(Json::Value & a_Metadata, const cParsedNBT & a_NBT);
 
 	static cItemHandler * GetItemHandler(int a_ItemType);
 	static cItemHandler * GetItemHandler(const cItem & a_Item) { return GetItemHandler(a_Item.m_ItemType); }

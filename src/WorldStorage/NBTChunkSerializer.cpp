@@ -9,6 +9,7 @@
 #include "../ItemGrid.h"
 #include "../StringCompression.h"
 #include "FastNBT.h"
+#include "../Items/ItemHandler.h"
 
 #include "../BlockEntities/BeaconEntity.h"
 #include "../BlockEntities/BrewingstandEntity.h"
@@ -142,8 +143,9 @@ void cNBTChunkSerializer::AddItem(const cItem & a_Item, int a_Slot, const AStrin
 				EnchantmentSerializer::WriteToNBTCompound(a_Item.m_Enchantments, m_Writer, TagName);
 			}
 
-			if (a_Item.GetItemMeta()) {
-				a_Item.GetItemMeta()->ToNBT(m_Writer);
+			if (!a_Item.m_Metadata.isNull())
+			{
+				a_Item.GetHandler()->MetadataToNBT(a_Item.m_Metadata, m_Writer);
 			}
 
 

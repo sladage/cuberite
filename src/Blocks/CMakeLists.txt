@@ -5,6 +5,7 @@ project (Cuberite)
 include_directories ("${PROJECT_SOURCE_DIR}/../")
 
 SET (SRCS
+	BlockBanner.cpp
 	BlockBed.cpp
 	BlockDoor.cpp
 	BlockHandler.cpp
@@ -14,6 +15,8 @@ SET (SRCS
 
 SET (HDRS
 	BlockAnvil.h
+	BlockBannerStanding.h
+	BlockBannerWall.h
 	BlockBed.h
 	BlockBigFlower.h
 	BlockBrewingStand.h

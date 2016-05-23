@@ -2,13 +2,12 @@
 #include "Globals.h"  // NOTE: MSVC stupidness requires this to be the same across all modules
 
 #include "Item.h"
-#include "json/json.h"
 #include "Items/ItemHandler.h"
 
 #include "FastRandom.h"
 
 
-
+/*
 cItem::cItem(const cItem & a_CopyFrom) :
 	m_ItemType(a_CopyFrom.m_ItemType),
 	m_ItemCount(a_CopyFrom.m_ItemCount),
@@ -54,7 +53,7 @@ cItem & cItem::operator=(const cItem & a_Copy)
 	return *this;
 }
 
-
+*/
 
 cItem cItem::CopyOne(void) const
 {
@@ -203,9 +202,7 @@ void cItem::GetJson(Json::Value & a_OutValue) const
 			a_OutValue["FadeColours"] = m_FireworkItem.FadeColoursToString(m_FireworkItem);
 		}
 
-		if (GetItemMeta()) {
-			GetItemMeta()->ToJSON(a_OutValue);
-		}
+		a_OutValue["Metadata"] = m_Metadata;
 
 		a_OutValue["RepairCost"] = m_RepairCost;
 	}
@@ -249,12 +246,7 @@ void cItem::FromJson(const Json::Value & a_Value)
 			m_FireworkItem.FadeColoursFromString(a_Value.get("FadeColours", "").asString(), m_FireworkItem);
 		}
 
-		cItemMeta * meta = GetHandler()->MakeItemMeta();
-
-		if (meta) {
-			meta->FromJSON(a_Value);
-			SetItemMeta(meta);
-		}
+		m_Metadata = a_Value["Metadata"];
 
 		m_RepairCost = a_Value.get("RepairCost", 0).asInt();
 	}
@@ -453,19 +445,6 @@ bool cItem::EnchantByXPLevels(int a_NumXPLevels)
 	return true;
 }
 
-
-
-cItemMeta* cItem::GetItemMeta() const
-{
-	return m_ItemMeta.get();
-}
-
-
-
-void cItem::SetItemMeta(cItemMeta * a_ItemMeta)
-{
-	m_ItemMeta.reset(a_ItemMeta);
-}
 
 
 

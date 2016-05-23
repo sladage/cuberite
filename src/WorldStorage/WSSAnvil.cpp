@@ -825,12 +825,7 @@ bool cWSSAnvil::LoadItemFromNBT(cItem & a_Item, const cParsedNBT & a_NBT, int a_
 	}
 
 	//Set item metadata
-	cItemMeta * meta = a_Item.GetHandler()->MakeItemMeta();
-
-	if (meta) {
-		meta->FromNBT(a_NBT);
-		a_Item.SetItemMeta(meta);
-	}
+	a_Item.GetHandler()->MetadataFromNBT(a_Item.m_Metadata, a_NBT);
 
 	return true;
 }
