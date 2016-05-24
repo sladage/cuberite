@@ -1428,13 +1428,14 @@ cBlockEntity * cWSSAnvil::LoadBannerFromNBT(const cParsedNBT & a_NBT, int a_TagI
 
 	int patterns = a_NBT.FindChildByName(a_TagIdx, "Patterns");
 	if (patterns >= 0) {
-		int pattern = a_NBT.GetFirstChild(patterns);
-		while (pattern >= 0) {
-			int ptColor = a_NBT.FindChildByName(pattern, "Color");
-			int ptPattern = a_NBT.FindChildByName(pattern, "Pattern");
+		int patternTag = a_NBT.GetFirstChild(patterns);
+		while (patternTag >= 0) {
+			int ptColor = a_NBT.FindChildByName(patternTag, "Color");
+			int ptPattern = a_NBT.FindChildByName(patternTag, "Pattern");
 			if (ptColor >= 0 && ptPattern >= 0) {
 				Banner->AddPattern(a_NBT.GetInt(ptColor), a_NBT.GetString(ptPattern));
 			}
+			patternTag = a_NBT.GetNextSibling(patternTag);
 		}
 	}
 
