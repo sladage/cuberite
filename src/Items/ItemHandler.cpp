@@ -532,6 +532,15 @@ void cItemHandler::OnFoodEaten(cWorld * a_World, cPlayer * a_Player, cItem * a_I
 
 
 
+void cItemHandler::OnItemInit(cItem & a_Item)
+{
+
+}
+
+
+
+
+
 short cItemHandler::GetDurabilityLossByAction(eDurabilityLostAction a_Action)
 {
 	switch (a_Action)

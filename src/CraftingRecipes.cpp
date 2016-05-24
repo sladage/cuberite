@@ -769,6 +769,7 @@ cCraftingRecipes::cRecipe * cCraftingRecipes::MatchRecipe(const cItem * a_Crafti
 
 	// The recipe has matched. Create a copy of the recipe and set its coords to match the crafting grid:
 	std::unique_ptr<cRecipe> Recipe = cpp14::make_unique<cRecipe>();
+	Recipe->m_Name   = a_Recipe->m_Name;
 	Recipe->m_Result = a_Recipe->m_Result;
 	Recipe->m_Width  = a_Recipe->m_Width;
 	Recipe->m_Height = a_Recipe->m_Height;
@@ -889,7 +890,7 @@ bool cCraftingRecipes::HandleBanners(const cItem * a_CraftingGrid, cCraftingReci
 	if (a_Recipe->m_Result.m_ItemType == E_ITEM_BANNER)
 	{
 		int dyeColor = 0;
-		std::vector<cItem *> banners;
+		std::vector<const cItem *> banners;
 
 		// Get the base color
 		for (auto recipeSlot : a_Recipe->m_Ingredients)
@@ -898,9 +899,9 @@ bool cCraftingRecipes::HandleBanners(const cItem * a_CraftingGrid, cCraftingReci
 			{
 			case E_ITEM_DYE:
 			{
-				//int GridID = (recipeSlot.x + a_OffsetX) + a_GridStride * (recipeSlot.y + a_OffsetY);
-				//dyeColor = static_cast<NIBBLETYPE>(a_CraftingGrid[GridID].m_ItemDamage & 0x0f);
-				dyeColor = (recipeSlot.m_Item.m_ItemDamage & 0x0f);
+				int GridID = (recipeSlot.x + a_OffsetX) + a_GridStride * (recipeSlot.y + a_OffsetY);
+				dyeColor = static_cast<NIBBLETYPE>(a_CraftingGrid[GridID].m_ItemDamage & 0x0f);
+				//dyeColor = (recipeSlot.m_Item.m_ItemDamage & 0x0f);
 				break;
 			}
 			case E_BLOCK_WOOL:
@@ -910,7 +911,8 @@ bool cCraftingRecipes::HandleBanners(const cItem * a_CraftingGrid, cCraftingReci
 			}
 			case E_ITEM_BANNER:
 			{
-				banners.push_back(&recipeSlot.m_Item);
+				int GridID = (recipeSlot.x + a_OffsetX) + a_GridStride * (recipeSlot.y + a_OffsetY);
+				banners.push_back(&a_CraftingGrid[GridID]);
 				break;
 			}
 			case E_ITEM_STICK: break;
@@ -926,7 +928,6 @@ bool cCraftingRecipes::HandleBanners(const cItem * a_CraftingGrid, cCraftingReci
 			a_Recipe->m_Result.m_Metadata["Banner"] = banner;
 		} else if (banners.size() == 2) {
 			//copy patterns
-			//TODO prevent patternItem from being consumed
 
 			//same base color?
 			if (banners[0]->m_Metadata["Banner"]["Base"] != banners[1]->m_Metadata["Banner"]["Base"])
@@ -944,8 +945,18 @@ bool cCraftingRecipes::HandleBanners(const cItem * a_CraftingGrid, cCraftingReci
 			// copy the metadata from the patternItem
 			a_Recipe->m_Result.m_Metadata = banners[patternItem]->m_Metadata;
 
+			// remove patternItem from the ingredients to prevent consumption
+			cRecipeSlots ingredients;
+			for (auto recipeSlot : a_Recipe->m_Ingredients) {
+				int GridID = (recipeSlot.x + a_OffsetX) + a_GridStride * (recipeSlot.y + a_OffsetY);
+				if (&a_CraftingGrid[GridID] != banners[patternItem])
+					ingredients.push_back(recipeSlot);
+			}
+			a_Recipe->m_Ingredients = ingredients;
+
 		} else {
 			// Get base color and patterns from parent
+			a_Recipe->m_Result.m_ItemDamage = banners[0]->m_ItemDamage;
 			a_Recipe->m_Result.m_Metadata = banners[0]->m_Metadata;
 			Json::Value patterns;
 
@@ -1087,7 +1098,7 @@ bool cCraftingRecipes::HandleBanners(const cItem * a_CraftingGrid, cCraftingReci
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "moj";
 			} else {
-				LOG("Unknown banner recipe.");
+				LOG("Unknown banner recipe: %s", a_Recipe->m_Name.c_str());
 			}
 
 			patterns.append(pattern);

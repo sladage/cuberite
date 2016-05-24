@@ -108,6 +108,9 @@ public:
 	/** Called after the player has eaten this item. */
 	virtual void OnFoodEaten(cWorld *a_World, cPlayer *a_Player, cItem *a_Item);
 
+	/** Called when item is made. */
+	virtual void OnItemInit(cItem & a_Item);
+
 	/** Get the durability lost which the item will get, when a specified action was performed. */
 	virtual short GetDurabilityLossByAction(eDurabilityLostAction a_Action);
 

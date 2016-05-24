@@ -393,8 +393,6 @@ Sign, 3             = Planks^-1, 1:1, 2:1, 3:1, 1:2, 2:2, 3:2         | Stick, 2
 SpruceFence, 3      = SprucePlanks, 1:1, 1:2, 3:1, 3:2 | Stick, 2:1, 2:2
 SpruceFenceGate     = Stick,       1:1, 1:2, 3:1, 3:2  | SprucePlanks, 2:1, 2:2
 
-# These are just the basic ones, you can add various shapes and stuff to each of them
-# ToDo: Add the various shapes (saved in NBT-Tags, not in meta)
 # Banners:
 
 BlackBanner         = Stick, 2:3 | BlackWool, 1:1, 2:1, 3:1, 1:2, 2:2, 3:2
@@ -457,7 +455,7 @@ LozengeBanner             = Banner^-1, 2:2 | Dye^-1, 1:2, 2:1, 3:2, 2:3
 
 # Banner borders
 
-BordureBanner              = Banner^-1, 2:2 | Dye^-1, 1:3, 2:3, 3:3, 1:2, 3:2, 1:3, 2:3, 3:3
+BordureBanner              = Banner^-1, 2:2 | Dye^-1, 1:1, 2:1, 3:1, 1:2, 3:2, 1:3, 2:3, 3:3
 BlackBordureIndentedBanner = Banner^-1, 2:2 | Vines, 1:2
 DyedBordureIndentedBanner  = Banner^-1, 2:3 | Vines, 1:2 | Dye^-1, 2:2
 
@@ -475,8 +473,8 @@ BaseGradientBanner = Banner^-1, 2:3 | Dye^-1, 2:1, 2:2, 1:3, 3:3
 
 BlackCreeperChargeBanner = Banner^-1, 2:2 | CreeperHead, 1:2
 DyedCreeperChargeBanner  = Banner^-1, 2:3 | CreeperHead, 1:2 | Dye^-1, 2:2
-BlackSkullChargeBanner   = Banner^-1, 2:2 | WitherSkeletonSkull, 1:2
-DyedSkullChargeBanner    = Banner^-1, 2:3 | WitherSkeletonSkull, 1:2 | Dye^-1, 2:2
+BlackSkullChargeBanner   = Banner^-1, 2:2 | WitherHead, 1:2
+DyedSkullChargeBanner    = Banner^-1, 2:3 | WitherHead, 1:2 | Dye^-1, 2:2
 BlackFlowerChargeBanner  = Banner^-1, 2:2 | RedFlower^8, 1:2
 DyedFlowerChargeBanner   = Banner^-1, 2:3 | RedFlower^8, 1:2 | Dye^-1, 2:2
 BlackThingBanner         = Banner^-1, 2:2 | GoldenApple^1, 1:2

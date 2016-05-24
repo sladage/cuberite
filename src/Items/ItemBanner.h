@@ -103,6 +103,19 @@ public:
 		return true;
 	}
 
+	virtual void OnItemInit(cItem & a_Item)
+	{
+		// check if we have the correct metadata
+		if (a_Item.m_Metadata.isMember("Banner"))
+			return;
+
+		// set base color from damage value
+		Json::Value banner;
+		banner["Base"] = a_Item.m_ItemDamage;
+
+		a_Item.m_Metadata["Banner"] = banner;
+	}
+
 	virtual void MetadataToNBT(const Json::Value & a_Metadata, cFastNBTWriter & a_Writer)
 	{
 		Json::Value banner = a_Metadata["Banner"];

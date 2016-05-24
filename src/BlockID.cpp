@@ -6,6 +6,7 @@
 #include "BlockID.h"
 #include "IniFile.h"
 #include "Item.h"
+#include "Items\ItemHandler.h"
 #include "Mobs/Monster.h"
 
 
@@ -102,6 +103,9 @@ public:
 				return false;
 			}
 		}
+
+		// Call item init
+		a_Item.GetHandler()->OnItemInit(a_Item);
 
 		// Parse the damage, if present:
 		if (Split.size() < 2)
