@@ -33,17 +33,15 @@ public:
 		}
 
 		AddFaceDirection(a_BlockX, a_BlockY, a_BlockZ, a_BlockFace);
-		
+
 		// Use a callback to set the properties of the banner entity
 		class cCallback : public cBlockEntityCallback
 		{
-			cPlayer & m_Player;
-			NIBBLETYPE m_BlockMeta;
 			const Json::Value & m_Meta;
 
 			virtual bool Item(cBlockEntity * a_BlockEntity)
 			{
-				if (!(a_BlockEntity->GetBlockType() == E_BLOCK_STANDING_BANNER || a_BlockEntity->GetBlockType() == E_BLOCK_WALL_BANNER))
+				if (!((a_BlockEntity->GetBlockType() == E_BLOCK_STANDING_BANNER) || (a_BlockEntity->GetBlockType() == E_BLOCK_WALL_BANNER)))
 				{
 					return false;
 				}
@@ -51,12 +49,16 @@ public:
 
 
 				Json::Value banner = m_Meta["Banner"];
-				if (!banner.isNull()) {
+				if (!banner.isNull())
+				{
 					BannerEntity->SetBaseColor(banner["Base"].asInt());
-					for (auto pattern : banner["Patterns"]) {
+					for (auto pattern : banner["Patterns"])
+					{
 						BannerEntity->AddPattern(pattern["Color"].asInt(), pattern["Pattern"].asString());
 					}
-				} else {
+				}
+				else
+				{
 					LOG("Expected metadata for BannerItem.");
 				}
 
@@ -65,13 +67,11 @@ public:
 			}
 
 		public:
-			cCallback(cPlayer & a_CBPlayer, const Json::Value & a_ItemMeta, NIBBLETYPE a_BlockMeta) :
-				m_Player(a_CBPlayer),
-				m_Meta(a_ItemMeta),
-				m_BlockMeta(a_BlockMeta)
+			cCallback(const Json::Value & a_ItemMeta) :
+				m_Meta(a_ItemMeta)
 			{}
 		};
-		cCallback Callback(a_Player, a_EquippedItem.m_Metadata, static_cast<NIBBLETYPE>(a_BlockFace));
+		cCallback Callback(a_EquippedItem.m_Metadata);
 		a_World.DoWithBlockEntityAt(a_BlockX, a_BlockY, a_BlockZ, Callback);
 
 		return true;
@@ -103,11 +103,13 @@ public:
 		return true;
 	}
 
-	virtual void OnItemInit(cItem & a_Item)
+	virtual void OnItemInit(cItem & a_Item) override
 	{
 		// check if we have the correct metadata
 		if (a_Item.m_Metadata.isMember("Banner"))
+		{
 			return;
+		}
 
 		// set base color from damage value
 		Json::Value banner;
@@ -116,7 +118,7 @@ public:
 		a_Item.m_Metadata["Banner"] = banner;
 	}
 
-	virtual void MetadataToNBT(const Json::Value & a_Metadata, cFastNBTWriter & a_Writer)
+	virtual void MetadataToNBT(const Json::Value & a_Metadata, cFastNBTWriter & a_Writer) override
 	{
 		Json::Value banner = a_Metadata["Banner"];
 
@@ -124,11 +126,13 @@ public:
 
 		a_Writer.AddInt("Base", banner["Base"].asInt());
 
-		if (banner["Patterns"].size() > 0) {
+		if (banner["Patterns"].size() > 0)
+		{
 
 			a_Writer.BeginList("Patterns", TAG_Compound);
 
-			for (auto pattern : banner["Patterns"]) {
+			for (auto pattern : banner["Patterns"])
+			{
 				a_Writer.BeginCompound("");
 				a_Writer.AddInt("Color", pattern["Color"].asInt());
 				a_Writer.AddString("Pattern", pattern["Pattern"].asString());
@@ -142,25 +146,30 @@ public:
 		a_Writer.EndCompound();
 	}
 
-	virtual void MetadataFromNBT(Json::Value & a_Metadata, const cParsedNBT & a_NBT)
+	virtual void MetadataFromNBT(Json::Value & a_Metadata, const cParsedNBT & a_NBT) override
 	{
 		Json::Value banner;
 		int blockent = a_NBT.FindChildByName(a_NBT.GetRoot(), "BlockEntityTag");
-		if (blockent < 0) {
+		if (blockent < 0)
+		{
 			return;
 		}
 		int base = a_NBT.FindChildByName(blockent, "Base");
-		if (base >= 0) {
+		if (base >= 0)
+		{
 			banner["Base"] = a_NBT.GetInt(base);
 		}
 		int patternsTag = a_NBT.FindChildByName(blockent, "Patterns");
-		if (patternsTag >= 0) {
+		if (patternsTag >= 0)
+		{
 			Json::Value patterns;
 			int patternTag = a_NBT.GetFirstChild(patternsTag);
-			while (patternTag >= 0) {
+			while (patternTag >= 0)
+			{
 				int ptColor = a_NBT.FindChildByName(patternTag, "Color");
 				int ptPattern = a_NBT.FindChildByName(patternTag, "Pattern");
-				if (ptColor >= 0 && ptPattern >= 0) {
+				if ((ptColor >= 0) && (ptPattern >= 0))
+				{
 					Json::Value p;
 					p["Color"] = a_NBT.GetInt(ptColor);
 					p["Pattern"] = a_NBT.GetString(ptPattern);

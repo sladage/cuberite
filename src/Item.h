@@ -74,7 +74,7 @@ public:
 	#if 0
 
 	/** Creates an exact copy of the item */
-	cItem::cItem(const cItem & a_CopyFrom) :
+	cItem(const cItem & a_CopyFrom) :
 		m_ItemType(a_CopyFrom.m_ItemType),
 		m_ItemCount(a_CopyFrom.m_ItemCount),
 		m_ItemDamage(a_CopyFrom.m_ItemDamage),
@@ -84,14 +84,11 @@ public:
 		m_RepairCost(a_CopyFrom.m_RepairCost),
 		m_FireworkItem(a_CopyFrom.m_FireworkItem),
 		m_ItemColor(a_CopyFrom.m_ItemColor),
-		m_Metadata(a_CopyFrom.m_Metadata)
-	{
+		m_Metadata(a_CopyFrom.m_Metadata){}
 
-	}
+		// cItem & operator=(const cItem & a_Copy);
 
 	#endif
-
-	//cItem & operator=(const cItem & a_Copy);
 
 
 	void Empty(void)
@@ -261,6 +258,3 @@ public:
 	int   m_MaxAmount;
 	int   m_Weight;
 } ;
-
-
-

@@ -5,6 +5,30 @@
 #include "../Items/ItemBanner.h"
 
 
+void _OnDestroyedByPlayer(cChunkInterface & a_ChunkInterface, cWorldInterface & a_WorldInterface, cPlayer * a_Player, int a_BlockX, int a_BlockY, int a_BlockZ, BLOCKTYPE a_BlockType);
+
+
+
+
+
+void cBlockBannerStandingHandler::OnDestroyedByPlayer(cChunkInterface & a_ChunkInterface, cWorldInterface & a_WorldInterface, cPlayer * a_Player, int a_BlockX, int a_BlockY, int a_BlockZ)
+{
+	_OnDestroyedByPlayer(a_ChunkInterface, a_WorldInterface, a_Player, a_BlockX, a_BlockY, a_BlockZ, E_BLOCK_STANDING_BANNER);
+}
+
+
+
+
+
+void cBlockBannerWallHandler::OnDestroyedByPlayer(cChunkInterface & a_ChunkInterface, cWorldInterface & a_WorldInterface, cPlayer * a_Player, int a_BlockX, int a_BlockY, int a_BlockZ)
+{
+	_OnDestroyedByPlayer(a_ChunkInterface, a_WorldInterface, a_Player, a_BlockX, a_BlockY, a_BlockZ, E_BLOCK_WALL_BANNER);
+}
+
+
+
+
+
 void _OnDestroyedByPlayer(cChunkInterface & a_ChunkInterface, cWorldInterface & a_WorldInterface, cPlayer * a_Player, int a_BlockX, int a_BlockY, int a_BlockZ, BLOCKTYPE a_BlockType)
 {
 	if (a_Player->IsGameModeCreative())
@@ -31,9 +55,11 @@ void _OnDestroyedByPlayer(cChunkInterface & a_ChunkInterface, cWorldInterface & 
 			// set meta data
 			Json::Value bannerMeta;
 			bannerMeta["Base"] = BannerEntity->GetBaseColor();
-			if (BannerEntity->GetPatterns().size() > 0) {
+			if (BannerEntity->GetPatterns().size() > 0)
+			{
 				Json::Value patterns;
-				for (auto pattern : BannerEntity->GetPatterns()) {
+				for (auto pattern : BannerEntity->GetPatterns())
+				{
 					Json::Value p;
 					p["Color"] = pattern.Color;
 					p["Pattern"] = pattern.Pattern;
@@ -61,21 +87,11 @@ void _OnDestroyedByPlayer(cChunkInterface & a_ChunkInterface, cWorldInterface & 
 		}
 
 	public:
-		cCallback(BLOCKTYPE a_BlockType) : m_BlockType(a_BlockType)
+		cCallback(BLOCKTYPE a_BT) : m_BlockType(a_BT)
 		{
 
 		}
-	};
+	} Callback(a_BlockType);
 
-	a_WorldInterface.DoWithBlockEntityAt(a_BlockX, a_BlockY, a_BlockZ, cCallback(a_BlockType));
-}
-
-void cBlockBannerStandingHandler::OnDestroyedByPlayer(cChunkInterface & a_ChunkInterface, cWorldInterface & a_WorldInterface, cPlayer * a_Player, int a_BlockX, int a_BlockY, int a_BlockZ)
-{
-	_OnDestroyedByPlayer(a_ChunkInterface, a_WorldInterface, a_Player, a_BlockX, a_BlockY, a_BlockZ, E_BLOCK_STANDING_BANNER);
-}
-
-void cBlockBannerWallHandler::OnDestroyedByPlayer(cChunkInterface & a_ChunkInterface, cWorldInterface & a_WorldInterface, cPlayer * a_Player, int a_BlockX, int a_BlockY, int a_BlockZ)
-{
-	_OnDestroyedByPlayer(a_ChunkInterface, a_WorldInterface, a_Player, a_BlockX, a_BlockY, a_BlockZ, E_BLOCK_WALL_BANNER);
+	a_WorldInterface.DoWithBlockEntityAt(a_BlockX, a_BlockY, a_BlockZ, Callback);
 }

@@ -6,7 +6,7 @@
 #include "BlockID.h"
 #include "IniFile.h"
 #include "Item.h"
-#include "Items\ItemHandler.h"
+#include "Items/ItemHandler.h"
 #include "Mobs/Monster.h"
 
 
@@ -490,9 +490,3 @@ cItem GetIniItemSet(cIniFile & a_IniFile, const char * a_Section, const char * a
 	}
 	return res;
 }
-
-
-
-
-
-

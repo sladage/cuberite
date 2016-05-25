@@ -7,7 +7,7 @@
 #include "CraftingRecipes.h"
 #include "Root.h"
 #include "Bindings/PluginManager.h"
-#include "Items\ItemBanner.h"
+#include "Items/ItemBanner.h"
 
 
 
@@ -791,7 +791,10 @@ cCraftingRecipes::cRecipe * cCraftingRecipes::MatchRecipe(const cItem * a_Crafti
 	HandleFireworks(a_CraftingGrid, Recipe.get(), a_GridStride, a_OffsetX, a_OffsetY);
 
 	// Handle Banners
-	if (!HandleBanners(a_CraftingGrid, Recipe.get(), a_GridStride, a_OffsetX, a_OffsetY)) return nullptr;
+	if (!HandleBanners(a_CraftingGrid, Recipe.get(), a_GridStride, a_OffsetX, a_OffsetY))
+	{
+		return nullptr;
+	}
 
 	// Handle Dyed Leather
 	HandleDyedLeather(a_CraftingGrid, Recipe.get(), a_GridStride, a_GridWidth, a_GridHeight);
@@ -886,7 +889,7 @@ void cCraftingRecipes::HandleFireworks(const cItem * a_CraftingGrid, cCraftingRe
 
 bool cCraftingRecipes::HandleBanners(const cItem * a_CraftingGrid, cCraftingRecipes::cRecipe * a_Recipe, int a_GridStride, int a_OffsetX, int a_OffsetY)
 {
-	
+
 	if (a_Recipe->m_Result.m_ItemType == E_ITEM_BANNER)
 	{
 		int dyeColor = 0;
@@ -901,7 +904,6 @@ bool cCraftingRecipes::HandleBanners(const cItem * a_CraftingGrid, cCraftingReci
 			{
 				int GridID = (recipeSlot.x + a_OffsetX) + a_GridStride * (recipeSlot.y + a_OffsetY);
 				dyeColor = static_cast<NIBBLETYPE>(a_CraftingGrid[GridID].m_ItemDamage & 0x0f);
-				//dyeColor = (recipeSlot.m_Item.m_ItemDamage & 0x0f);
 				break;
 			}
 			case E_BLOCK_WOOL:
@@ -921,183 +923,290 @@ bool cCraftingRecipes::HandleBanners(const cItem * a_CraftingGrid, cCraftingReci
 			}
 		}
 
-		if (banners.size() == 0) {
+		if (banners.size() == 0)
+		{
 			// Just base color, no patterns
 			Json::Value banner;
 			banner["Base"] = dyeColor;
 			a_Recipe->m_Result.m_Metadata["Banner"] = banner;
-		} else if (banners.size() == 2) {
-			//copy patterns
+		}
+		else if (banners.size() == 2)
+		{
+			// copy patterns
 
-			//same base color?
+			// same base color?
 			if (banners[0]->m_Metadata["Banner"]["Base"] != banners[1]->m_Metadata["Banner"]["Base"])
+			{
 				return false;
+			}
 
-			//one of them must not have a pattern
+			// one of them must not have a pattern
 			int patternItem = -1;
 			if (banners[0]->m_Metadata["Banner"].isMember("Patterns") && banners[0]->m_Metadata["Banner"]["Patterns"].size() > 0)
+			{
 				patternItem +=1;
+			}
 			if (banners[1]->m_Metadata["Banner"].isMember("Patterns") && banners[1]->m_Metadata["Banner"]["Patterns"].size() > 0)
+			{
 				patternItem +=2;
-			if (patternItem < 0 || patternItem > 1)
+			}
+			if ((patternItem < 0) || (patternItem > 1))
+			{
 				return false;
+			}
 
 			// copy the metadata from the patternItem
-			a_Recipe->m_Result.m_Metadata = banners[patternItem]->m_Metadata;
+			a_Recipe->m_Result.m_Metadata = banners[static_cast<size_t>(patternItem)]->m_Metadata;
 
 			// remove patternItem from the ingredients to prevent consumption
 			cRecipeSlots ingredients;
-			for (auto recipeSlot : a_Recipe->m_Ingredients) {
+			for (auto recipeSlot : a_Recipe->m_Ingredients)
+			{
 				int GridID = (recipeSlot.x + a_OffsetX) + a_GridStride * (recipeSlot.y + a_OffsetY);
-				if (&a_CraftingGrid[GridID] != banners[patternItem])
+				if (&a_CraftingGrid[GridID] != banners[static_cast<size_t>(patternItem)])
+				{
 					ingredients.push_back(recipeSlot);
+				}
 			}
 			a_Recipe->m_Ingredients = ingredients;
 
-		} else {
+		}
+		else
+		{
 			// Get base color and patterns from parent
 			a_Recipe->m_Result.m_ItemDamage = banners[0]->m_ItemDamage;
 			a_Recipe->m_Result.m_Metadata = banners[0]->m_Metadata;
 			Json::Value patterns;
 
 			if (a_Recipe->m_Result.m_Metadata["Banner"].isMember("Patterns"))
+			{
 				patterns = a_Recipe->m_Result.m_Metadata["Banner"]["Patterns"];
+			}
 
 			// Now add the new pattern
 			Json::Value pattern;
-			if (a_Recipe->m_Name == "BaseFessBanner") {
+			if (a_Recipe->m_Name == "BaseFessBanner")
+			{
 				pattern["Color"]   = dyeColor;
 				pattern["Pattern"] = "bs";
-			} else if (a_Recipe->m_Name == "ChiefFessBanner") {
+			}
+			else if (a_Recipe->m_Name == "ChiefFessBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "ts";
-			} else if (a_Recipe->m_Name == "PaleDexterBanner") {
+			}
+			else if (a_Recipe->m_Name == "PaleDexterBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "ls";
-			} else if (a_Recipe->m_Name == "PaleSinisterBanner") {
+			}
+			else if (a_Recipe->m_Name == "PaleSinisterBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "rs";
-			} else if (a_Recipe->m_Name == "PaleBanner") {
+			}
+			else if (a_Recipe->m_Name == "PaleBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "cs";
-			} else if (a_Recipe->m_Name == "FessBanner") {
+			}
+			else if (a_Recipe->m_Name == "FessBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "ms";
-			} else if (a_Recipe->m_Name == "BendBanner") {
+			}
+			else if (a_Recipe->m_Name == "BendBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "drs";
-			} else if (a_Recipe->m_Name == "BendSinisterBanner") {
+			}
+			else if (a_Recipe->m_Name == "BendSinisterBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "dls";
-			} else if (a_Recipe->m_Name == "PalyBanner") {
+			}
+			else if (a_Recipe->m_Name == "PalyBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "ss";
-			} else if (a_Recipe->m_Name == "SaltireBanner") {
+			}
+			else if (a_Recipe->m_Name == "SaltireBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "cr";
-			} else if (a_Recipe->m_Name == "CrossBanner") {
+			}
+			else if (a_Recipe->m_Name == "CrossBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "sc";
-			} else if (a_Recipe->m_Name == "PerBendSinisterBanner") {
+			}
+			else if (a_Recipe->m_Name == "PerBendSinisterBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "ld";
-			} else if (a_Recipe->m_Name == "PerBendBanner") {
+			}
+			else if (a_Recipe->m_Name == "PerBendBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "rud";
-			} else if (a_Recipe->m_Name == "PerBendInvertedBanner") {
+			}
+			else if (a_Recipe->m_Name == "PerBendInvertedBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "lud";
-			} else if (a_Recipe->m_Name == "PerBendSinisterInvertedBanner") {
+			}
+			else if (a_Recipe->m_Name == "PerBendSinisterInvertedBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "rd";
-			} else if (a_Recipe->m_Name == "PerPaleBanner") {
+			}
+			else if (a_Recipe->m_Name == "PerPaleBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "vh";
-			} else if (a_Recipe->m_Name == "PerPaleInvertedBanner") {
+			}
+			else if (a_Recipe->m_Name == "PerPaleInvertedBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "vhr";
-			} else if (a_Recipe->m_Name == "PerFessBanner") {
+			}
+			else if (a_Recipe->m_Name == "PerFessBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "hh";
-			} else if (a_Recipe->m_Name == "PerFessInvertedBanner") {
+			}
+			else if (a_Recipe->m_Name == "PerFessInvertedBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "hhb";
-			} else if (a_Recipe->m_Name == "BaseDexterCantonBanner") {
+			}
+			else if (a_Recipe->m_Name == "BaseDexterCantonBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "bl";
-			} else if (a_Recipe->m_Name == "BaseSinisterCantonBanner") {
+			}
+			else if (a_Recipe->m_Name == "BaseSinisterCantonBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "br";
-			} else if (a_Recipe->m_Name == "ChiefDexterCantonBanner") {
+			}
+			else if (a_Recipe->m_Name == "ChiefDexterCantonBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "tl";
-			} else if (a_Recipe->m_Name == "ChiefSinisterCantonBanner") {
+			}
+			else if (a_Recipe->m_Name == "ChiefSinisterCantonBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "tr";
-			} else if (a_Recipe->m_Name == "ChevronBanner") {
+			}
+			else if (a_Recipe->m_Name == "ChevronBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "bt";
-			} else if (a_Recipe->m_Name == "InvertedChevronBanner") {
+			}
+			else if (a_Recipe->m_Name == "InvertedChevronBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "tt";
-			} else if (a_Recipe->m_Name == "BaseIndentedBanner") {
+			}
+			else if (a_Recipe->m_Name == "BaseIndentedBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "bts";
-			} else if (a_Recipe->m_Name == "ChiefIndentedBanner") {
+			}
+			else if (a_Recipe->m_Name == "ChiefIndentedBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "tts";
-			} else if (a_Recipe->m_Name == "RoundelBanner") {
+			}
+			else if (a_Recipe->m_Name == "RoundelBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "mc";
-			} else if (a_Recipe->m_Name == "LozengeBanner") {
+			}
+			else if (a_Recipe->m_Name == "LozengeBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "mr";
-			} else if (a_Recipe->m_Name == "BordureBanner") {
+			}
+			else if (a_Recipe->m_Name == "BordureBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "bo";
-			} else if (a_Recipe->m_Name == "BlackBordureIndentedBanner") {
+			}
+			else if (a_Recipe->m_Name == "BlackBordureIndentedBanner")
+			{
 				pattern["Color"] = E_META_BANNER_BLACK;
 				pattern["Pattern"] = "cbo";
-			} else if (a_Recipe->m_Name == "DyedBordureIndentedBanner") {
+			}
+			else if (a_Recipe->m_Name == "DyedBordureIndentedBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "cbo";
-			} else if (a_Recipe->m_Name == "BlackFieldMasonedBanner") {
+			}
+			else if (a_Recipe->m_Name == "BlackFieldMasonedBanner")
+			{
 				pattern["Color"] = E_META_BANNER_BLACK;
 				pattern["Pattern"] = "bri";
-			} else if (a_Recipe->m_Name == "DyedFieldMasonedBanner") {
+			}
+			else if (a_Recipe->m_Name == "DyedFieldMasonedBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "bri";
-			} else if (a_Recipe->m_Name == "GradientBanner") {
+			}
+			else if (a_Recipe->m_Name == "GradientBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "gra";
-			} else if (a_Recipe->m_Name == "BaseGradientBanner") {
+			}
+			else if (a_Recipe->m_Name == "BaseGradientBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "gru";
-			} else if (a_Recipe->m_Name == "BlackCreeperChargeBanner") {
+			}
+			else if (a_Recipe->m_Name == "BlackCreeperChargeBanner")
+			{
 				pattern["Color"] = E_META_BANNER_BLACK;
 				pattern["Pattern"] = "cre";
-			} else if (a_Recipe->m_Name == "DyedCreeperChargeBanner") {
+			}
+			else if (a_Recipe->m_Name == "DyedCreeperChargeBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "cre";
-			} else if (a_Recipe->m_Name == "BlackSkullChargeBanner") {
+			}
+			else if (a_Recipe->m_Name == "BlackSkullChargeBanner")
+			{
 				pattern["Color"] = E_META_BANNER_BLACK;
 				pattern["Pattern"] = "sku";
-			} else if (a_Recipe->m_Name == "DyedSkullChargeBanner") {
+			}
+			else if (a_Recipe->m_Name == "DyedSkullChargeBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "sku";
-			} else if (a_Recipe->m_Name == "BlackFlowerChargeBanner") {
+			}
+			else if (a_Recipe->m_Name == "BlackFlowerChargeBanner")
+			{
 				pattern["Color"] = E_META_BANNER_BLACK;
 				pattern["Pattern"] = "flo";
-			} else if (a_Recipe->m_Name == "DyedFlowerChargeBanner") {
+			}
+			else if (a_Recipe->m_Name == "DyedFlowerChargeBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "flo";
-			} else if (a_Recipe->m_Name == "BlackThingBanner") {
+			}
+			else if (a_Recipe->m_Name == "BlackThingBanner")
+			{
 				pattern["Color"] = E_META_BANNER_BLACK;
 				pattern["Pattern"] = "moj";
-			} else if (a_Recipe->m_Name == "DyedThingBanner") {
+			}
+			else if (a_Recipe->m_Name == "DyedThingBanner")
+			{
 				pattern["Color"] = dyeColor;
 				pattern["Pattern"] = "moj";
-			} else {
+			}
+			else
+			{
 				LOG("Unknown banner recipe: %s", a_Recipe->m_Name.c_str());
 			}
 
@@ -1298,7 +1407,3 @@ void cCraftingRecipes::HandleDyedLeather(const cItem * a_CraftingGrid, cCrafting
 		a_Recipe->m_Result.m_ItemColor.SetColor(result_red, result_green, result_blue);
 	}
 }
-
-
-
-

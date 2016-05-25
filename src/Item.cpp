@@ -6,8 +6,8 @@
 
 #include "FastRandom.h"
 
+#if 0
 
-/*
 cItem::cItem(const cItem & a_CopyFrom) :
 	m_ItemType(a_CopyFrom.m_ItemType),
 	m_ItemCount(a_CopyFrom.m_ItemCount),
@@ -19,9 +19,11 @@ cItem::cItem(const cItem & a_CopyFrom) :
 	m_FireworkItem(a_CopyFrom.m_FireworkItem),
 	m_ItemColor(a_CopyFrom.m_ItemColor)
 {
-	if (a_CopyFrom.GetItemMeta()) {
+	if (a_CopyFrom.GetItemMeta())
+	{
 		cItemMeta * meta = GetHandler()->MakeItemMeta();
-		if (meta) {
+		if (meta)
+		{
 			meta->FromCopy(a_CopyFrom.GetItemMeta());
 			SetItemMeta(meta);
 		}
@@ -42,9 +44,11 @@ cItem & cItem::operator=(const cItem & a_Copy)
 	m_FireworkItem = a_Copy.m_FireworkItem;
 	m_ItemColor = a_Copy.m_ItemColor;
 
-	if (a_Copy.GetItemMeta()) {
+	if (a_Copy.GetItemMeta())
+	{
 		cItemMeta * meta = GetHandler()->MakeItemMeta();
-		if (meta) {
+		if (meta)
+		{
 			meta->FromCopy(a_Copy.GetItemMeta());
 			SetItemMeta(meta);
 		}
@@ -53,7 +57,7 @@ cItem & cItem::operator=(const cItem & a_Copy)
 	return *this;
 }
 
-*/
+#endif
 
 cItem cItem::CopyOne(void) const
 {
@@ -535,5 +539,3 @@ bool cItems::ContainsType(const cItem & a_Item)
 	}
 	return false;
 }
-
-
