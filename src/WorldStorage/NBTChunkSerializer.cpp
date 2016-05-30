@@ -143,9 +143,9 @@ void cNBTChunkSerializer::AddItem(const cItem & a_Item, int a_Slot, const AStrin
 				EnchantmentSerializer::WriteToNBTCompound(a_Item.m_Enchantments, m_Writer, TagName);
 			}
 
-			if (!a_Item.m_Metadata.isNull())
+			if (a_Item.GetMetadata() != nullptr)
 			{
-				a_Item.GetHandler()->MetadataToNBT(a_Item.m_Metadata, m_Writer);
+				a_Item.GetMetadata()->ToNBT(m_Writer);
 			}
 
 

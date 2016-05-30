@@ -2881,7 +2881,11 @@ void cProtocol180::ParseItemMetadata(cItem & a_Item, const AString & a_Metadata)
 		}
 	}
 
-	a_Item.GetHandler()->MetadataFromNBT(a_Item.m_Metadata, NBT);
+	cItemMetadata* ItemMetadata = a_Item.GetHandler()->MakeMetadata(a_Item);
+	if (ItemMetadata != nullptr)
+	{
+		ItemMetadata->FromNBT(NBT);
+	}
 
 }
 
@@ -3014,7 +3018,7 @@ void cProtocol180::WriteItem(cPacketizer & a_Pkt, const cItem & a_Item)
 	a_Pkt.WriteBEInt8(a_Item.m_ItemCount);
 	a_Pkt.WriteBEInt16(a_Item.m_ItemDamage);
 
-	if (a_Item.m_Enchantments.IsEmpty() && a_Item.IsBothNameAndLoreEmpty() && (a_Item.m_ItemType != E_ITEM_FIREWORK_ROCKET) && (a_Item.m_ItemType != E_ITEM_FIREWORK_STAR) && !a_Item.m_ItemColor.IsValid() && a_Item.m_Metadata.isNull())
+	if (a_Item.m_Enchantments.IsEmpty() && a_Item.IsBothNameAndLoreEmpty() && (a_Item.m_ItemType != E_ITEM_FIREWORK_ROCKET) && (a_Item.m_ItemType != E_ITEM_FIREWORK_STAR) && !a_Item.m_ItemColor.IsValid() && a_Item.GetMetadata() == nullptr)
 	{
 		a_Pkt.WriteBEInt8(0);
 		return;
@@ -3067,9 +3071,9 @@ void cProtocol180::WriteItem(cPacketizer & a_Pkt, const cItem & a_Item)
 	{
 		cFireworkItem::WriteToNBTCompound(a_Item.m_FireworkItem, Writer, static_cast<ENUM_ITEM_ID>(a_Item.m_ItemType));
 	}
-	if (!a_Item.m_Metadata.isNull())
+	if (a_Item.GetMetadata() != nullptr)
 	{
-		a_Item.GetHandler()->MetadataToNBT(a_Item.m_Metadata, Writer);
+		a_Item.GetMetadata()->ToNBT(Writer);
 	}
 	Writer.Finish();
 

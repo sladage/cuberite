@@ -10,6 +10,150 @@
 
 
 
+class cBannerItemMetadata : public cItemMetadata
+{
+public:
+	virtual void FromNBT(const cParsedNBT & a_NBT) override
+	{
+		int blockent = a_NBT.FindChildByName(a_NBT.GetRoot(), "BlockEntityTag");
+		if (blockent < 0)
+		{
+			return;
+		}
+		int base = a_NBT.FindChildByName(blockent, "Base");
+		if (base >= 0)
+		{
+			m_Base = a_NBT.GetInt(base);
+		}
+		int patterns = a_NBT.FindChildByName(blockent, "Patterns");
+		if (patterns >= 0)
+		{
+			int patternTag = a_NBT.GetFirstChild(patterns);
+			while (patternTag >= 0)
+			{
+				int ptColor = a_NBT.FindChildByName(patternTag, "Color");
+				int ptPattern = a_NBT.FindChildByName(patternTag, "Pattern");
+				if (ptColor >= 0 && ptPattern >= 0)
+				{
+					cBannerEntity::cPattern p;
+					p.Color = a_NBT.GetInt(ptColor);
+					p.Pattern = a_NBT.GetString(ptPattern);
+					m_Patterns.push_back(p);
+				}
+				patternTag = a_NBT.GetNextSibling(patternTag);
+			}
+		}
+	}
+
+	virtual void FromCopy(const cItemMetadata * a_Meta) override
+	{
+		const cBannerItemMetadata * meta = dynamic_cast<const cBannerItemMetadata*>(a_Meta);
+		if (!meta)
+		{
+			LOG("cBannerItemMetadata::FromCopy : Tried to get metadata from invalid source.");
+			return;
+		}
+		m_Base = meta->m_Base;
+		m_Patterns = meta->m_Patterns;
+	}
+
+	virtual void FromJSON(const Json::Value & a_Value) override
+	{
+		Json::Value banner = a_Value["Banner"];
+		m_Base = banner["Base"].asInt();
+
+		Json::Value patterns = banner["Patterns"];
+		if (patterns.isNull())
+		{
+			return;
+		}
+
+		for (auto pattern : patterns)
+		{
+			cBannerEntity::cPattern p;
+			p.Color = pattern["Color"].asInt();
+			p.Pattern = pattern["Pattern"].asString();
+			m_Patterns.push_back(p);
+		}
+	}
+
+	virtual void ToNBT(cFastNBTWriter & a_Writer) override
+	{
+		a_Writer.BeginCompound("BlockEntityTag");
+
+		a_Writer.AddInt("Base", m_Base);
+
+		a_Writer.BeginList("Patterns", TAG_Compound);
+
+		for (auto Pattern : m_Patterns)
+		{
+			a_Writer.BeginCompound("");
+			a_Writer.AddInt("Color", Pattern.Color);
+			a_Writer.AddString("Pattern", Pattern.Pattern);
+			a_Writer.EndCompound();
+		}
+
+		a_Writer.EndList();
+
+		a_Writer.EndCompound();
+	}
+
+	virtual void ToJSON(Json::Value & a_OutValue) override
+	{
+		Json::Value banner;
+		banner["Base"] = m_Base;
+
+		Json::Value patterns;
+		for (auto Pattern : m_Patterns)
+		{
+			Json::Value p;
+			p["Color"] = Pattern.Color;
+			p["Pattern"] = Pattern.Pattern;
+			patterns.append(p);
+		}
+		banner["Patterns"] = patterns;
+
+		a_OutValue["Banner"] = banner;
+	}
+
+	virtual bool IsEqual(cItemMetadata * a_ItemMeta) override
+	{
+		cBannerItemMetadata * meta = dynamic_cast<cBannerItemMetadata*>(a_ItemMeta);
+		if (!meta)
+		{
+			return false;
+		}
+		if (meta->m_Base != m_Base)
+		{
+			return false;
+		}
+		if (meta->m_Patterns.size() != m_Patterns.size())
+		{
+			return false;
+		}
+		for (int i = 0; i < m_Patterns.size(); ++i)
+		{
+			auto left = m_Patterns[i];
+			auto right = meta->m_Patterns[i];
+			if (left.Color != right.Color)
+			{
+				return false;
+			}
+			if (left.Pattern != right.Pattern)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	int m_Base;
+	cBannerEntity::PatternList m_Patterns;
+};
+
+
+
+
 class cItemBannerHandler :
 	public cItemHandler
 {
@@ -37,7 +181,7 @@ public:
 		// Use a callback to set the properties of the banner entity
 		class cCallback : public cBlockEntityCallback
 		{
-			const Json::Value & m_Meta;
+			const cItemMetadata * m_Meta;
 
 			virtual bool Item(cBlockEntity * a_BlockEntity)
 			{
@@ -47,14 +191,13 @@ public:
 				}
 				auto BannerEntity = static_cast<cBannerEntity *>(a_BlockEntity);
 
-
-				Json::Value banner = m_Meta["Banner"];
-				if (!banner.isNull())
+				if (m_Meta != nullptr)
 				{
-					BannerEntity->SetBaseColor(banner["Base"].asInt());
-					for (auto pattern : banner["Patterns"])
+					const cBannerItemMetadata * banner = static_cast<const cBannerItemMetadata *>(m_Meta);
+					BannerEntity->SetBaseColor(banner->m_Base);
+					for (auto pattern : banner->m_Patterns)
 					{
-						BannerEntity->AddPattern(pattern["Color"].asInt(), pattern["Pattern"].asString());
+						BannerEntity->AddPattern(pattern.Color, pattern.Pattern);
 					}
 				}
 				else
@@ -67,11 +210,11 @@ public:
 			}
 
 		public:
-			cCallback(const Json::Value & a_ItemMeta) :
+			cCallback(const cItemMetadata * a_ItemMeta) :
 				m_Meta(a_ItemMeta)
 			{}
 		};
-		cCallback Callback(a_EquippedItem.m_Metadata);
+		cCallback Callback(a_EquippedItem.GetMetadata());
 		a_World.DoWithBlockEntityAt(a_BlockX, a_BlockY, a_BlockZ, Callback);
 
 		return true;
@@ -105,80 +248,24 @@ public:
 
 	virtual void OnItemInit(cItem & a_Item) override
 	{
-		// check if we have the correct metadata
-		if (a_Item.m_Metadata.isMember("Banner"))
+		// check if the metadata was initialized
+		if (a_Item.GetMetadata() != nullptr)
 		{
 			return;
 		}
+
+		cBannerItemMetadata * meta = new cBannerItemMetadata();
 
 		// set base color from damage value
-		Json::Value banner;
-		banner["Base"] = a_Item.m_ItemDamage;
+		meta->m_Base = a_Item.m_ItemDamage;
 
-		a_Item.m_Metadata["Banner"] = banner;
+		a_Item.SetMetadata(meta);
 	}
 
-	virtual void MetadataToNBT(const Json::Value & a_Metadata, cFastNBTWriter & a_Writer) override
+	virtual cItemMetadata* MakeMetadata(cItem & a_Item) override
 	{
-		Json::Value banner = a_Metadata["Banner"];
-
-		a_Writer.BeginCompound("BlockEntityTag");
-
-		a_Writer.AddInt("Base", banner["Base"].asInt());
-
-		if (banner["Patterns"].size() > 0)
-		{
-
-			a_Writer.BeginList("Patterns", TAG_Compound);
-
-			for (auto pattern : banner["Patterns"])
-			{
-				a_Writer.BeginCompound("");
-				a_Writer.AddInt("Color", pattern["Color"].asInt());
-				a_Writer.AddString("Pattern", pattern["Pattern"].asString());
-				a_Writer.EndCompound();
-			}
-
-			a_Writer.EndList();
-
-		}
-
-		a_Writer.EndCompound();
-	}
-
-	virtual void MetadataFromNBT(Json::Value & a_Metadata, const cParsedNBT & a_NBT) override
-	{
-		Json::Value banner;
-		int blockent = a_NBT.FindChildByName(a_NBT.GetRoot(), "BlockEntityTag");
-		if (blockent < 0)
-		{
-			return;
-		}
-		int base = a_NBT.FindChildByName(blockent, "Base");
-		if (base >= 0)
-		{
-			banner["Base"] = a_NBT.GetInt(base);
-		}
-		int patternsTag = a_NBT.FindChildByName(blockent, "Patterns");
-		if (patternsTag >= 0)
-		{
-			Json::Value patterns;
-			int patternTag = a_NBT.GetFirstChild(patternsTag);
-			while (patternTag >= 0)
-			{
-				int ptColor = a_NBT.FindChildByName(patternTag, "Color");
-				int ptPattern = a_NBT.FindChildByName(patternTag, "Pattern");
-				if ((ptColor >= 0) && (ptPattern >= 0))
-				{
-					Json::Value p;
-					p["Color"] = a_NBT.GetInt(ptColor);
-					p["Pattern"] = a_NBT.GetString(ptPattern);
-					patterns.append(p);
-				}
-				patternTag = a_NBT.GetNextSibling(patternTag);
-			}
-			banner["Patterns"] = patterns;
-		}
-		a_Metadata["Banner"] = banner;
+		cBannerItemMetadata * meta = new cBannerItemMetadata();
+		a_Item.SetMetadata(meta);
+		return meta;
 	}
 } ;

@@ -878,20 +878,9 @@ cItemHandler::FoodInfo cItemHandler::GetFoodInfo()
 
 
 
-void cItemHandler::MetadataToNBT(const Json::Value & a_Metadata, cFastNBTWriter & a_Writer)
+cItemMetadata * cItemHandler::MakeMetadata(cItem & a_Item)
 {
-	UNUSED(a_Metadata);
-	UNUSED(a_Writer);
-}
-
-
-
-
-
-void cItemHandler::MetadataFromNBT(Json::Value & a_Metadata, const cParsedNBT & a_NBT)
-{
-	UNUSED(a_Metadata);
-	UNUSED(a_NBT);
+	return nullptr;
 }
 
 

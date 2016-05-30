@@ -21,6 +21,32 @@ class cItemHandler;
 class cColor;
 
 
+/** Storage class for item metadata */
+class cItemMetadata
+{
+public:
+	virtual ~cItemMetadata() {}
+
+	/** Load from NBT source. */
+	virtual void FromNBT(const cParsedNBT & a_NBT) = 0;
+
+	/** Load from copy. */
+	virtual void FromCopy(const cItemMetadata * a_Meta) = 0;
+
+	/** From JSON */
+	virtual void FromJSON(const Json::Value & a_Value) = 0;
+
+	/** Write to NBT */
+	virtual void ToNBT(cFastNBTWriter & a_Writer) = 0;
+
+	/** To JSON */
+	virtual void ToJSON(Json::Value & a_OutValue) = 0;
+
+	/** Is equal to */
+	virtual bool IsEqual(cItemMetadata * a_ItemMeta) = 0;
+};
+
+
 // tolua_begin
 class cItem
 {
@@ -69,26 +95,12 @@ public:
 	}
 
 
-	// The constructor is disabled in code, because the compiler generates it anyway,
-	// but it needs to stay because ToLua needs to generate the binding for it
-	#if 0
-
 	/** Creates an exact copy of the item */
-	cItem(const cItem & a_CopyFrom) :
-		m_ItemType(a_CopyFrom.m_ItemType),
-		m_ItemCount(a_CopyFrom.m_ItemCount),
-		m_ItemDamage(a_CopyFrom.m_ItemDamage),
-		m_Enchantments(a_CopyFrom.m_Enchantments),
-		m_CustomName(a_CopyFrom.m_CustomName),
-		m_Lore(a_CopyFrom.m_Lore),
-		m_RepairCost(a_CopyFrom.m_RepairCost),
-		m_FireworkItem(a_CopyFrom.m_FireworkItem),
-		m_ItemColor(a_CopyFrom.m_ItemColor),
-		m_Metadata(a_CopyFrom.m_Metadata){}
+	cItem(const cItem & a_CopyFrom);
 
-		// cItem & operator=(const cItem & a_Copy);
+	cItem & operator=(const cItem & a_Copy);
 
-	#endif
+	
 
 
 	void Empty(void)
@@ -131,7 +143,12 @@ public:
 			(m_CustomName == a_Item.m_CustomName) &&
 			(m_Lore == a_Item.m_Lore) &&
 			m_FireworkItem.IsEqualTo(a_Item.m_FireworkItem) &&
-			m_Metadata == a_Item.m_Metadata
+			(
+				(m_Metadata.get() && a_Item.m_Metadata.get() && 
+				m_Metadata->IsEqual(a_Item.m_Metadata.get())) || 
+				(m_Metadata.get() == nullptr &&
+				a_Item.m_Metadata.get() == nullptr)
+			)
 		);
 	}
 
@@ -194,6 +211,17 @@ public:
 	Returns true if item enchanted, false if not. */
 	bool EnchantByXPLevels(int a_NumXPLevels);  // tolua_export
 
+	/** Get this items meta data. */
+	cItemMetadata* GetMetadata() const;
+
+	/** Sets this items meta data storage. Deletes previous cItemMeta if it had any. */
+	void SetMetadata(cItemMetadata * a_ItemMetadata);
+
+private:
+	std::unique_ptr<cItemMetadata> m_Metadata;
+
+public:
+
 	// tolua_begin
 
 	short          m_ItemType;
@@ -206,8 +234,6 @@ public:
 	int            m_RepairCost;
 	cFireworkItem  m_FireworkItem;
 	cColor         m_ItemColor;
-
-	Json::Value    m_Metadata;
 };
 // tolua_end
 

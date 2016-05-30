@@ -6,7 +6,9 @@
 
 #include "FastRandom.h"
 
-#if 0
+
+
+
 
 cItem::cItem(const cItem & a_CopyFrom) :
 	m_ItemType(a_CopyFrom.m_ItemType),
@@ -19,16 +21,17 @@ cItem::cItem(const cItem & a_CopyFrom) :
 	m_FireworkItem(a_CopyFrom.m_FireworkItem),
 	m_ItemColor(a_CopyFrom.m_ItemColor)
 {
-	if (a_CopyFrom.GetItemMeta())
+	if (a_CopyFrom.GetMetadata())
 	{
-		cItemMeta * meta = GetHandler()->MakeItemMeta();
+		cItemMetadata * meta = GetHandler()->MakeMetadata(*this);
 		if (meta)
 		{
-			meta->FromCopy(a_CopyFrom.GetItemMeta());
-			SetItemMeta(meta);
+			meta->FromCopy(a_CopyFrom.GetMetadata());
 		}
 	}
 }
+
+
 
 
 
@@ -44,20 +47,21 @@ cItem & cItem::operator=(const cItem & a_Copy)
 	m_FireworkItem = a_Copy.m_FireworkItem;
 	m_ItemColor = a_Copy.m_ItemColor;
 
-	if (a_Copy.GetItemMeta())
+	if (a_Copy.GetMetadata())
 	{
-		cItemMeta * meta = GetHandler()->MakeItemMeta();
+		cItemMetadata * meta = GetHandler()->MakeMetadata(*this);
 		if (meta)
 		{
-			meta->FromCopy(a_Copy.GetItemMeta());
-			SetItemMeta(meta);
+			meta->FromCopy(a_Copy.GetMetadata());
 		}
 	}
 
 	return *this;
 }
 
-#endif
+
+
+
 
 cItem cItem::CopyOne(void) const
 {
@@ -206,9 +210,14 @@ void cItem::GetJson(Json::Value & a_OutValue) const
 			a_OutValue["FadeColours"] = m_FireworkItem.FadeColoursToString(m_FireworkItem);
 		}
 
-		a_OutValue["Metadata"] = m_Metadata;
-
 		a_OutValue["RepairCost"] = m_RepairCost;
+
+		Json::Value metadata;
+		if (GetMetadata())
+		{
+			GetMetadata()->ToJSON(metadata);
+		}
+		a_OutValue["Metadata"] = metadata;
 	}
 }
 
@@ -250,9 +259,15 @@ void cItem::FromJson(const Json::Value & a_Value)
 			m_FireworkItem.FadeColoursFromString(a_Value.get("FadeColours", "").asString(), m_FireworkItem);
 		}
 
-		m_Metadata = a_Value["Metadata"];
-
 		m_RepairCost = a_Value.get("RepairCost", 0).asInt();
+
+		Json::Value metadata = a_Value["Metadata"];
+		cItemMetadata * meta = GetHandler()->MakeMetadata(*this);
+
+		if (meta) {
+			meta->FromJSON(metadata);
+		}
+
 	}
 }
 
@@ -447,6 +462,24 @@ bool cItem::EnchantByXPLevels(int a_NumXPLevels)
 	m_Enchantments.AddFromString(Enchantment4.ToString());
 
 	return true;
+}
+
+
+
+
+
+cItemMetadata* cItem::GetMetadata() const
+{
+	return m_Metadata.get();
+}
+
+
+
+
+
+void cItem::SetMetadata(cItemMetadata * a_ItemMetadata)
+{
+	m_Metadata.reset(a_ItemMetadata);
 }
 
 
